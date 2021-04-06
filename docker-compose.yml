@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:alpine
+    ports: 
+      - 5432:5432
+    env_file: .env
+    volumes:
+      - data:/var/lib/postgresql/data
+  app:
+    build: .
+    image: todoapp:latest
+    volumes:
+      - ./app:/home/todoapp/src/app/
+    ports:
+      - 8000:8000
+    env_file: .env
+    command: web
+volumes:
+  data:
