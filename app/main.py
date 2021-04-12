@@ -1,9 +1,9 @@
 from fastapi import Depends, HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from os import getenv
 from fastapi import logger
 import logging
+import os
 
 from app import crud, models, schemas
 from app.database import SessionLocal, engine
@@ -15,16 +15,23 @@ models.Base.metadata.create_all(bind=engine)
 
 
 # Setup logging
-gunicorn_logger = logging.getLogger('gunicorn.error')
+logger = logging.getLogger("gunicorn.error")
 
-logger.handlers = gunicorn_logger.handlers
-if __name__ != "main":
-    logger.setLevel(gunicorn_logger.level)
-else:
+if not os.getenv("LOG_LEVEL"):
+
     logger.setLevel(logging.DEBUG)
+else:
+    try:
+        # if it is invalid, set it to DEBUG
+        logger.setLevel(os.getenv("LOG_LEVEL"))
+    except:
+        logger.setLevel(logging.DEBUG)
+        logger.error(str(
+            "Incorrect log level set - setting log level to DEBUG: {}".format(
+                os.getenv("LOG_LEVEL")
+            )))
+        
 
-
-logger.setLevel()
 
 
 app = FastAPI(

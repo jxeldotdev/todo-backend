@@ -22,7 +22,7 @@ def read_todos(
     """
     Retrieve all todo items.
     """
-    todos = crud.get_todos(db, skip, limit)
+    todos = crud.Todo.get_all(db, skip, limit)
     return todos
 
 
@@ -32,7 +32,7 @@ def read_todo(
     todo_id: UUID,
      db: Session = Depends(get_db)
 ) -> Any:
-    todo = crud.get_todo(db, todo_id)
+    todo = crud.Todo.get_single(db, todo_id)
 
     if todo:
         return todo
