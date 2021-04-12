@@ -8,8 +8,16 @@ from pydantic import BaseModel, Field
 class TodoDelete(BaseModel):
     pass
 
+class TodoCreate(BaseModel):
+    title: str 
+    notes: Optional[str] = None
+    completed: bool = None
+
+    class Config:
+        orm_mode: True
+
 class Todo(BaseModel):
-    id: Optional[str] = None
+    id: str
     title: str 
     notes: Optional[str] = None
     completed: bool = None
