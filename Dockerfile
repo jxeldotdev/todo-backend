@@ -1,6 +1,6 @@
 FROM python:3.9-alpine as deps
 
-ADD app/requirements.txt /tmp
+ADD requirements.txt /tmp
 
 RUN pip install --upgrade pip && \
     apk add --update --no-cache \
@@ -28,7 +28,7 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 USER todoapp
 
-ADD app /home/todoapp/
+ADD ./src/ /home/todoapp/
 
 WORKDIR /home/todoapp/src/
 

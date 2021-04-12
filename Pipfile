@@ -9,6 +9,8 @@ alembic = "*"
 psycopg2-binary = "*"
 fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
+gunicorn = "*"
+loguru = "*"
 
 [dev-packages]
 

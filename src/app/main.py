@@ -1,37 +1,25 @@
 from fastapi import Depends, HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from fastapi import logger
+#from fastapi import logger
 import logging
 import os
 
 from app import crud, models, schemas
 from app.database import SessionLocal, engine
 from app.routers import todo
+from app.routers import health
 
 
 # Create tables on startup
 models.Base.metadata.create_all(bind=engine)
 
-
-# Setup logging
-logger = logging.getLogger("gunicorn.error")
-
-if not os.getenv("LOG_LEVEL"):
-
-    logger.setLevel(logging.DEBUG)
-else:
-    try:
-        # if it is invalid, set it to DEBUG
-        logger.setLevel(os.getenv("LOG_LEVEL"))
-    except:
-        logger.setLevel(logging.DEBUG)
-        logger.error(str(
-            "Incorrect log level set - setting log level to DEBUG: {}".format(
-                os.getenv("LOG_LEVEL")
-            )))
-        
-
+# # Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+uvicorn_logger = logging.getLogger('uvicorn.error')
+logger.setLevel(uvicorn_logger.level)
+# logger.setLevel(os.getenv("LOG_LEVEL","DEBUG"))
 
 
 app = FastAPI(
@@ -54,3 +42,4 @@ app.add_middleware(
 )
 
 app.include_router(todo.router)
+app.include_router(health.router, prefix="/health")
