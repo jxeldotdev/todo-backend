@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session
 from app.schemas import Todo, TodoCreate, TodoDelete
 from app.database import get_db
 from app import crud
-from app.main import logger 
 
 router = APIRouter()
 
@@ -22,7 +21,7 @@ def read_todos(
     """
     Retrieve all todo items.
     """
-    todos = crud.get_todos(db, skip, limit)
+    todos = crud.Todo.get_all(db, skip, limit)
     return todos
 
 
@@ -32,7 +31,7 @@ def read_todo(
     todo_id: UUID,
      db: Session = Depends(get_db)
 ) -> Any:
-    todo = crud.get_todo(db, todo_id)
+    todo = crud.Todo.get_single(db, todo_id)
 
     if todo:
         return todo
@@ -54,9 +53,6 @@ def update_todo(todo_id, todo_in: Todo, db: Session = Depends(get_db)) -> Any:
         raise HTTPException(status_code=404, detail="Item not found")
 
     todo = crud.Todo.update_todo(db, todo_in, todo_id)
-
-
-    
 
 
 @router.delete("/todo/{todo_id}", status_code=204, tags=["Todos"])

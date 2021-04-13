@@ -1,30 +1,25 @@
 from fastapi import Depends, HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from os import getenv
-from fastapi import logger
+#from fastapi import logger
 import logging
+import os
 
 from app import crud, models, schemas
 from app.database import SessionLocal, engine
 from app.routers import todo
+from app.routers import health
 
 
 # Create tables on startup
 models.Base.metadata.create_all(bind=engine)
 
-
-# Setup logging
-gunicorn_logger = logging.getLogger('gunicorn.error')
-
-logger.handlers = gunicorn_logger.handlers
-if __name__ != "main":
-    logger.setLevel(gunicorn_logger.level)
-else:
-    logger.setLevel(logging.DEBUG)
-
-
-logger.setLevel()
+# # Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+uvicorn_logger = logging.getLogger('uvicorn.error')
+logger.setLevel(uvicorn_logger.level)
+# logger.setLevel(os.getenv("LOG_LEVEL","DEBUG"))
 
 
 app = FastAPI(
@@ -47,3 +42,4 @@ app.add_middleware(
 )
 
 app.include_router(todo.router)
+app.include_router(health.router, prefix="/health")

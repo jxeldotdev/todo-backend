@@ -1,13 +1,13 @@
 #!/bin/sh
 
-for var in POSTGRES_USER POSTGRES_PASSWORD POSTGRES_DB POSTGRES_HOST; do
+for var in POSTGRES_USER POSTGRES_PASSWORD POSTGRES_DB POSTGRES_HOST ; do
     if ! env | grep -c "$var" > /dev/null; then echo "Required variable $var is unset" 1>&2; exit 1; fi
 done
 
 case "$@" in 
     web)
         cd /home/todoapp/src/
-        uvicorn --reload --host 0.0.0.0 --port 8000 app.main:app
+        python run.py
         ;;
     migrate)
         echo "command $@ not implemented yet" 1>&2
