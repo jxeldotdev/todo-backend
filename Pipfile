@@ -11,8 +11,10 @@ fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 gunicorn = "*"
 loguru = "*"
+pytest = "*"
 
 [dev-packages]
+autopep8 = "*"
 
 [requires]
 python_version = "3.8"
