@@ -41,5 +41,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(todo.router)
+app.include_router(todo.router, prefix="/todo")
 app.include_router(health.router, prefix="/health")

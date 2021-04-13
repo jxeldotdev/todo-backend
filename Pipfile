@@ -11,6 +11,7 @@ fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 gunicorn = "*"
 loguru = "*"
+pytest = "*"
 
 [dev-packages]
 
