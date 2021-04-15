@@ -49,11 +49,21 @@ This is an example project to deploy a python (Fast API) todo app on AWS EKS.
 * [SQLAlchemy](https://www.sqlalchemy.org/)
 * [PostgreSQL](https://www.postgresql.org/)
 
-## About the project
+## Getting Started
 
-## Installation
+To get a **local** copy of the application up and running follow these steps.
 
-This project is to be installed with a Helm chart.
+### Prerequisites
+
+* Docker (or Podman)
+* Docker Images for 
+
+```sh
+docker pull jfreemxn/todo-backend:latest
+docker pull jfreemxn/todo-frontend:latest
+
+docker-compose up -d
+```
 
 ## Usage
 
@@ -62,7 +72,7 @@ This project is to be installed with a Helm chart.
 
 Unfortunately for this repository pull requests will not be merged into this projcet as it is a personal showcase.
 
-## Todo List
+<!-- ## Todo List
 
 [x] Create a Backend API
 
@@ -78,4 +88,4 @@ Unfortunately for this repository pull requests will not be merged into this pro
 
 [] Automate deployment of application
 
-[] Add monitoring to app with Prometheus
+[] Add monitoring to app with Prometheus -->
