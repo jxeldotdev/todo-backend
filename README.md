@@ -1,9 +1,59 @@
+<!-- PROJECT LOGO -->
+<br />
 
-# todo-backend
+  <h3 align="center">Joel's Todo App - Backend</h3>
+
+  <p align="center">
+    This is the REST API backend for my example todo list application, written in Python using the framework FastAPI.
+    <br />
+    It is (to be) deployed on Amazon EKS by a Helm chart using Terraform.
+    <br />
+    <br />
+  </p>
+</p>
+
+<!-- TABLE OF CONTENTS -->
+<details open="open">
+  <summary><h2 style="display: inline-block">Table of Contents</h2></summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgements">Acknowledgements</a></li>
+  </ol>
+</details>
+
+
+## About The Project
+
 This is an example project to deploy a python (Fast API) todo app on AWS EKS.
+
+### Built With
+
+* [FastAPI](https://github.com/tiangolo/fastapi)
+* [SQLAlchemy](https://www.sqlalchemy.org/)
+* [PostgreSQL](https://www.postgresql.org/)
+
+## About the project
 
 ## Installation
 
+This project is to be installed with a Helm chart.
 
 ## Usage
 
