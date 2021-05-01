@@ -33,7 +33,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: joelfreeman/todo-backend:${{ env.GITHUB_SHA }}, jfreemxn/todo-backend:latest
+          tags: joelfreeman/todo-backend:${{ env.GITHUB_SHA }}, joelfreeman/todo-backend:latest
           cache-from: type=registry,ref=user/app:latest
           cache-to: type=inline
 
@@ -43,7 +43,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: joelfreeman/todo-backend:${{ env.GITHUB_SHA }}, jfreemxn/todo-backend:${{ env.GIT_TAG_NAME }}
+          tags: joelfreeman/todo-backend:${{ env.GITHUB_SHA }}, joelfreeman/todo-backend:${{ env.GIT_TAG_NAME }}
           cache-from: type=registry,ref=user/app:latest
           cache-to: type=inline
       
