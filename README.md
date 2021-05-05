@@ -68,6 +68,7 @@ docker-compose up -d
 ## Usage
 
 
+
 ## Contributing
 
 Unfortunately for this repository pull requests will not be merged into this projcet as it is a personal showcase.
