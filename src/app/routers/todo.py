@@ -62,4 +62,4 @@ def delete_todo(todo_id, db: Session = Depends(get_db)) -> Any:
     if not todo:
         raise HTTPException(status_code=404)
 
-    crud.Todo.delete_todo(db, todo_id)
+    crud.Todo.delete(db, todo_id)

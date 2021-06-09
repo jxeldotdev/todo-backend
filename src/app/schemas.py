@@ -11,16 +11,16 @@ class TodoDelete(BaseModel):
 class TodoCreate(BaseModel):
     title: str 
     notes: Optional[str] = None
-    completed: bool = None
+    completed: bool = False
 
     class Config:
         orm_mode: True
 
 class Todo(BaseModel):
-    id: str
+    id: uuid.UUID
     title: str 
     notes: Optional[str] = None
-    completed: bool = None
+    completed: bool = False
 
     class Config:
         orm_mode: True

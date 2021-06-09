@@ -9,7 +9,6 @@ import uuid
 from app import models, schemas
 
 # Todo Items
-
 class Todo:
 
     def get_single(db: Session, todo_id: uuid.uuid4):
@@ -49,7 +48,7 @@ class Todo:
         return db_todo
 
 
-    def delete_todo(db: Session, todo_id: uuid.UUID):
+    def delete(db: Session, todo_id: uuid.UUID):
         """
         Delete a Todo Item by UUID
         """
@@ -66,13 +65,8 @@ class Todo:
         db_todo = db.query(models.Todo).filter(models.Todo.id == todo.id).first()
         
         if not db_todo:
-            print("Doesn't exist")
-            db_todo = models.Todo(title=todo.title, notes=todo.notes, completed=todo.completed)
-            db.add(db_todo)
-            db.commit()
-            db.refresh(db_todo)
+            raise sqlalchemy.exc.NoSuchColumnError
         else:
-            print("Does exist")
             db_todo.title = todo.title
             db_todo.notes = todo.notes
             db_todo.completed = todo.completed

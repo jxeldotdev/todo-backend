@@ -10,7 +10,7 @@ def test_create_item(db: Session) -> None:
     title = "Example Item 1"
     notes = "Example Notes"
     todo_item = TodoCreate(title=title, notes=notes)
-    todo = crud.Todo.create(todo_item)
+    todo = crud.Todo.create(db, todo_item)
     assert todo.title == title
     assert todo.notes == notes
     assert todo.completed == False
@@ -23,7 +23,7 @@ def test_get_todo(db: Session) -> None:
     todo_item = TodoCreate(title=title, notes=notes)
     todo = crud.Todo.create(db, todo_item)
     db_todo = crud.Todo.get_single(db=db, todo_id=todo.id)
-    
+
     assert db_todo
     assert db_todo.title == title
     assert db_todo.notes == notes
@@ -36,7 +36,7 @@ def test_complete_todo(db: Session) -> None:
     todo_item = TodoCreate(title=title, notes=notes)
     todo = crud.Todo.create(db, todo_item)
     todo2 = Todo(id=todo.id, title=title, notes=notes, completed=True)
-    todo_update = crud.Todo.update_todo(db, todo2)
+    todo_update = crud.Todo.update_todo(db, todo=todo2, todo_id=todo.id)
 
     assert todo2.id == todo.id
     assert todo.title == todo.title
@@ -44,11 +44,29 @@ def test_complete_todo(db: Session) -> None:
     assert todo.completed == todo2.completed
 
 
-def test__item(db: Session) -> None:
+def test_update_todo_description(db: Session) -> None:
     title = "Example Item 1"
     notes = "Example Notes"
+    
     todo_item = TodoCreate(title=title, notes=notes)
-    todo = crud.Todo.create(todo_item)
-    assert todo.title == title
-    assert todo.notes == notes
-    assert todo.completed == False
+    todo = crud.Todo.create(db, todo_item)
+
+    notes2 = "Updated notes"
+    todo2 = Todo(id=todo.id, title=title, notes=notes2)
+    todo_update = crud.Todo.update_todo(db, todo=todo2, todo_id=todo.id)
+
+    assert todo.id == todo2.id
+    assert todo.title == todo2.title
+    assert todo2.notes == notes2
+    assert todo2.completed == False
+
+
+def test_delete_todo(db: Session) -> None:
+    title = "Example Item 1"
+    notes = "Example Notes"
+    todo_in = TodoCreate(title=title, notes=notes)
+    todo = crud.Todo.create(db, todo_in)
+    todo2 = crud.Todo.delete(db, todo.id)
+    todo3 = crud.Todo.get_single(db, todo_id=todo.id)
+
+    assert todo3 is None
