@@ -14,8 +14,10 @@ case "$@" in
         exit 1
         ;;
     test)
-        echo "command $@ not implemented yet" 1>&2
-        exit 1
+        cd /home/todoapp/src/app/
+        which pytest
+        
+        pytest -vvv
         ;;
     *)
         echo "Unknown command specified - command was $@" 1>&2
