@@ -9,33 +9,25 @@ from app import crud, models, schemas
 from app.database import SessionLocal, engine
 from app.routers import todo
 from app.routers import health
+from app.config import TodoAppConfig
 
+from app import cfg
 
 # Create tables on startup
 models.Base.metadata.create_all(bind=engine)
 
-# # Setup logging
+# Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 uvicorn_logger = logging.getLogger('uvicorn.error')
 logger.setLevel(uvicorn_logger.level)
-# logger.setLevel(os.getenv("LOG_LEVEL","DEBUG"))
 
 
-app = FastAPI(
-    title="Todo Rest API"
-)
-
-origins = [
-    "http://localhost",
-    "http://localhost:8000",
-    "http://localhost:8080"
-]
-
+app = FastAPI(title=cfg.APP_TITLE)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=cfg.ALLOWED_ORGINS,
     allow_credentials=True,
     allow_methods=["GET","POST","PUT","DELETE"],
     allow_headers=["*"],
