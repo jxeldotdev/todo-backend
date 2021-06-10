@@ -19,7 +19,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 uvicorn_logger = logging.getLogger('uvicorn.error')
 logger.setLevel(uvicorn_logger.level)
-# logger.setLevel(os.getenv("LOG_LEVEL","DEBUG"))
 
 
 app = FastAPI(
