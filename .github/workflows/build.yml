@@ -2,7 +2,7 @@ name: Build Docker Image
 on:
   push:
     tags: v[1-9]+[0-9]+.[0-9]+
-    branches: main
+    branches: '**'
 jobs:
   build-docker-image:
     runs-on: ubuntu-latest
