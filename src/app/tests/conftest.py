@@ -15,14 +15,11 @@ def db() -> Generator:
     yield SessionLocal()
 
 
-@pytest.fixture(scope="module")
-def client() -> Generator:
-    with TestClient(app) as c:
-        yield c
+# @pytest.fixture(scope="module")
+# def client() -> Generator:
+#     with TestClient(app) as c:
+#         yield c
 
-@pytest.fixture(autouse=True, scope="function")
-def teardown(db: SessionLocal) -> None:
-    db.execute("TRUNCATE TABLE todo")
-    
-
-    
+# @pytest.fixture(autouse=True, scope="function")
+# def teardown(db: SessionLocal) -> None:
+#     db.execute("TRUNCATE TABLE todo")

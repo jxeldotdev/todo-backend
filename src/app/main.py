@@ -15,10 +15,10 @@ from app.routers import health
 models.Base.metadata.create_all(bind=engine)
 
 # # Setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-uvicorn_logger = logging.getLogger('uvicorn.error')
-logger.setLevel(uvicorn_logger.level)
+# logging.basicConfig(level=logging.DEBUG)
+# logger = logging.getLogger(__name__)
+# uvicorn_logger = logging.getLogger('uvicorn.error')
+# logger.setLevel(uvicorn_logger.level)
 
 
 app = FastAPI(
@@ -36,7 +36,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["GET","POST","PUT","DELETE"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
 

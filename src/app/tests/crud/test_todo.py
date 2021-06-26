@@ -3,12 +3,17 @@ from sqlalchemy.orm import Session
 from app import crud
 from app.database import SessionLocal
 from app.schemas import Todo, TodoCreate, TodoDelete
+from app.tests.utils import utils
 
 import uuid
 import typing
 from pytest import raises
 
+
 def test_create_item(db: Session) -> None:
+
+    utils.recreate()
+
     title = "Example Item 1"
     notes = "Example Notes"
     todo_item = TodoCreate(title=title, notes=notes)
@@ -16,10 +21,11 @@ def test_create_item(db: Session) -> None:
     assert todo.title == title
     assert todo.notes == notes
     assert todo.completed == False
-    assert type(todo.id) == uuid.UUID
+    assert isinstance(todo.id, uuid.UUID)
 
 
 def test_get_todo(db: Session) -> None:
+
     title = "Example Item 1"
     notes = "Example Notes"
     todo_item = TodoCreate(title=title, notes=notes)
@@ -32,27 +38,33 @@ def test_get_todo(db: Session) -> None:
     assert db_todo.completed == False
 
 
-def test_get_all_todo_single(db: Session) -> None:
-    title = "Example Item 1"
-    notes = "Example Notes"
-    todo_item = TodoCreate(title=title, notes=notes)
+def test_get_incompleted_todos(db: Session) -> None:
+
+    title = "Example Item 2"
+    notes = "Example Notes 2"
     todo_item = TodoCreate(title=title, notes=notes)
     todo = crud.Todo.create(db, todo_item)
-    todo2 = crud.Todo.create(db, todo_item)
-    db_todos = crud.Todo.get_all(db, skip=0, limit=100)
 
-    assert db_todos
-    assert type(db_todos) == list
-    assert type(db_todos[0].id) == uuid.UUID
-    assert db_todos[0]
-    assert db_todos[0].completed == todo.completed
-    assert db_todos[0].notes == todo.notes
-    assert db_todos[0].title == todo.title
-    assert db_todos[1].completed == todo2.completed
-    assert db_todos[1].notes == todo2.notes
-    assert db_todos[1].title == todo2.title
-    assert len(db_todos) > 1
+    db_todo = crud.Todo.get_by_completion(
+        db, completed=False, skip=0, limit=10)
 
+    assert db_todo
+    for todo in db_todo:
+        assert todo.completed == False
+
+
+def test_get_completed_todos(db: Session) -> None:
+
+    title = "Example Item 3"
+    notes = "Example Notes 3"
+
+    todo_item = TodoCreate(title=title, notes=notes, completed=True)
+    todo = crud.Todo.create(db, todo_item)
+    db_todo = crud.Todo.get_by_completion(db, completed=True, skip=0, limit=10)
+
+    assert db_todo
+    for todo in db_todo:
+        assert todo.completed == True
 
 
 def test_complete_todo(db: Session) -> None:
@@ -71,6 +83,7 @@ def test_complete_todo(db: Session) -> None:
 
 
 def test_update_todo_description(db: Session) -> None:
+
     title = "Example Item 1"
     notes = "Example Notes"
 

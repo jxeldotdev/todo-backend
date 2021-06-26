@@ -6,6 +6,7 @@ from os import getenv
 from sqlalchemy.ext.declarative import DeclarativeMeta
 import json
 
+
 def get_db_url():
     return "postgresql://{}:{}@{}/{}".format(
         getenv('POSTGRES_USER'),
