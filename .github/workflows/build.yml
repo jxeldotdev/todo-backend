@@ -90,6 +90,10 @@ jobs:
       - name: Start postgres
         run: docker-compose up -d db
 
+      - name: Pull latest app image
+        run: |
+          docker-compose pull app
+
       - name: Run database migrations
         run: docker-compose run --rm app migrate
 
