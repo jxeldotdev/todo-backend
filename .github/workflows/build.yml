@@ -34,7 +34,8 @@ jobs:
         run: |
           export GIT_TAG_NAME=$(echo "${GITHUB_REF}" | cut -d '/' -f 3)
 
-      - name: outputs
+      - name: Create docker tag variable
+        id: tags
         run: | 
           echo "::set-output name=branch_name::$(git rev-parse --short HEAD)$(git branch --no-color --show-current)"
       
@@ -45,7 +46,7 @@ jobs:
           context: .
           push: true
           tags: |
-            joelfreeman/todo-backend:${{ steps.outputs.output.branch_name }},
+            joelfreeman/todo-backend:${{ steps.outputs.tags.branch_name }}
             joelfreeman/todo-backend:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
@@ -78,10 +79,10 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install linter
-        run: pip install autopep8
+        run: pip install pycodestyle
           
       - name: Run linter
-        run: autopep8 --diff --verbose -a -a -r ./src/*
+        run: pycodestyle ./src
 
       - name: Copy env file
         run: cp .env.testing .env

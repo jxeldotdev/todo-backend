@@ -20,7 +20,7 @@ def test_create_item(db: Session) -> None:
     todo = crud.Todo.create(db, todo_item)
     assert todo.title == title
     assert todo.notes == notes
-    assert todo.completed == False
+    assert todo.completed is False
     assert isinstance(todo.id, uuid.UUID)
 
 
@@ -35,7 +35,7 @@ def test_get_todo(db: Session) -> None:
     assert db_todo
     assert db_todo.title == title
     assert db_todo.notes == notes
-    assert db_todo.completed == False
+    assert db_todo.completed is False
 
 
 def test_get_incompleted_todos(db: Session) -> None:
@@ -50,7 +50,7 @@ def test_get_incompleted_todos(db: Session) -> None:
 
     assert db_todo
     for todo in db_todo:
-        assert todo.completed == False
+        assert todo.completed is False
 
 
 def test_get_completed_todos(db: Session) -> None:
@@ -64,7 +64,7 @@ def test_get_completed_todos(db: Session) -> None:
 
     assert db_todo
     for todo in db_todo:
-        assert todo.completed == True
+        assert todo.completed
 
 
 def test_complete_todo(db: Session) -> None:
@@ -97,7 +97,7 @@ def test_update_todo_description(db: Session) -> None:
     assert todo.id == todo_update.id
     assert todo.title == todo2.title
     assert todo_update.notes == notes2
-    assert todo_update.completed == False
+    assert todo_update.completed is False
 
 
 def test_delete_todo(db: Session) -> None:

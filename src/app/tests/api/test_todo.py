@@ -45,7 +45,7 @@ def test_write_todo():
     assert utils.is_uuid(rsp["id"])
     assert rsp["title"] == content["title"]
     assert rsp["notes"] == content["notes"]
-    assert rsp["completed"] == False
+    assert rsp["completed"] is False
 
 
 def test_read_todos():
@@ -79,7 +79,7 @@ def test_read_todos():
     for item in rsp:
         assert item["title"] == f"Example todo {i}"
         assert item["notes"] == f"Example notes {i}"
-        assert item["completed"] == False
+        assert item["completed"] is False
         i += 1
 
 
@@ -124,7 +124,7 @@ def test_update_todo():
     assert rsp["id"] == post_rsp["id"]
     assert rsp["title"] == updated_content["title"]
     assert rsp["notes"] == updated_content["notes"]
-    assert rsp["completed"] == True
+    assert rsp["completed"]
 
 
 def test_delete_todo():
@@ -153,7 +153,7 @@ def test_delete_todo():
     assert rsp["id"] is not None
     assert rsp["title"] == content["title"]
     assert rsp["notes"] == content["notes"]
-    assert rsp["completed"] == False
+    assert rsp["completed"] is False
 
     assert del_rsp is None
     assert delete.status_code == 204

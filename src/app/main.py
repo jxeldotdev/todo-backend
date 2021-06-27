@@ -1,9 +1,7 @@
 from fastapi import Depends, HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-#from fastapi import logger
 import logging
-import os
 
 from app import crud, models, schemas
 from app.database import SessionLocal, engine
@@ -14,11 +12,9 @@ from app.routers import health
 # Create tables on startup
 models.Base.metadata.create_all(bind=engine)
 
-# # Setup logging
-# logging.basicConfig(level=logging.DEBUG)
-# logger = logging.getLogger(__name__)
-# uvicorn_logger = logging.getLogger('uvicorn.error')
-# logger.setLevel(uvicorn_logger.level)
+# Setup logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 app = FastAPI(
