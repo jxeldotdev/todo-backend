@@ -35,7 +35,7 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 USER todoapp
 
-ADD ./src/ /home/todoapp/
+ADD src /home/todoapp/src/
 
 WORKDIR /home/todoapp/src/
 
