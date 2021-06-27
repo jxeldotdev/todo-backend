@@ -46,7 +46,7 @@ jobs:
           context: .
           push: true
           tags: |
-            joelfreeman/todo-backend:${{ steps.outputs.tags.branch_name }}
+            joelfreeman/todo-backend:${{ steps.tags.outputs.branch_name }}
             joelfreeman/todo-backend:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
