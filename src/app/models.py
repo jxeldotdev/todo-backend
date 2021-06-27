@@ -9,13 +9,19 @@ from app.database import Base
 import uuid
 import secrets
 
+
 class Todo(Base):
     """
     Table for todos.
     """
     __tablename__ = "todo"
-    
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+
+    id = Column(
+        UUID(
+            as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True)
     title = Column(String(128), nullable=False)
     notes = Column(String(256), nullable=False)
-    completed = Column(Boolean, default=False)
+    completed = Column(Boolean, nullable=False, default=False)
