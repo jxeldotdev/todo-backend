@@ -10,7 +10,7 @@ services:
       - data:/var/lib/postgresql/data
   app:
     build: .
-    image: todoapp:latest
+    image: joelfreeman/todo-backend:latest
     volumes:
       - ./src/:/home/todoapp/src/
     ports:
