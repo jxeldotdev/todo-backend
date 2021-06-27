@@ -11,6 +11,7 @@ fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 gunicorn = "*"
 pytest = "*"
+requests = "*"
 
 [dev-packages]
 autopep8 = "*"
