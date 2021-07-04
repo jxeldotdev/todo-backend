@@ -1,7 +1,6 @@
 from fastapi.exceptions import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql.functions import mode
-from app.database import SQLALCHEMY_DATABASE_URL
 import sqlalchemy
 from sqlalchemy.orm import Session, clear_mappers
 import uuid

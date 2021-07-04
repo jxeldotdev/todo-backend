@@ -1,12 +1,14 @@
+import logging
+
 from fastapi import Depends, HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
-import logging
 
 from app import crud, models, schemas
 from app.database import SessionLocal, engine
 from app.routers import todo
 from app.routers import health
+
+from app.settings import cfg, RequiredSettingMissingException
 
 
 # Create tables on startup
@@ -21,20 +23,17 @@ app = FastAPI(
     title="Todo Rest API"
 )
 
-origins = [
-    "http://localhost",
-    "http://localhost:8000",
-    "http://localhost:8080"
-]
-
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],
-    allow_headers=["*"],
-)
+try:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cfg.allowed_origins,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "DELETE"],
+        allow_headers=["*"],
+    )
+except RequiredSettingMissingException as e:
+    logger.error("Failed to configure CORS Middleware, required env vars not present")
+    logger.error(e)
 
 app.include_router(todo.router, prefix="/todo")
 app.include_router(health.router, prefix="/health")
