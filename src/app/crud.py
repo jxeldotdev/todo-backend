@@ -1,15 +1,17 @@
-from fastapi.exceptions import HTTPException
+import logging
+
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.sql.functions import mode
 import sqlalchemy
 from sqlalchemy.orm import Session, clear_mappers
 import uuid
 
-from app import models, schemas
+from app import models
+from app import schemas
 
-# Todo Items
+logger = logging.getLogger(__name__)
 
 
+#TODO: Add logging in each functionß
 class Todo:
 
     def get_single(db: Session, todo_id: uuid.uuid4):

@@ -3,7 +3,7 @@ import logging
 from fastapi import Depends, HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app import crud, models, schemas
+from app.models import Base
 from app.database import SessionLocal, engine
 from app.routers import todo
 from app.routers import health
@@ -12,7 +12,7 @@ from app.settings import cfg, RequiredSettingMissingException
 
 
 # Create tables on startup
-models.Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 # Setup logging
 logging.basicConfig(level=logging.DEBUG)

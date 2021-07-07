@@ -33,3 +33,4 @@ def test_database_url() -> None:
     os.environ['POSTGRES_DB'] = 'database'
 
     assert cfg.database_url == "postgresql://user:password@host/database"
+    raise Exception(cfg.database_url)

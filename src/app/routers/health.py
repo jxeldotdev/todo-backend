@@ -6,7 +6,8 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from app.database import get_db
 
-from app import models, main
+from app import models
+from app import main
 
 router = APIRouter()
 

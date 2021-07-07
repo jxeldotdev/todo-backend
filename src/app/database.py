@@ -1,10 +1,12 @@
+import logging
+
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from app.settings import cfg
 
+logger = logging.getLogger(__name__)
 
 
 # TODO: Use TLS to connect

@@ -43,7 +43,7 @@ class Settings:
         Return allowed origins for CORS settings
         """
         origins = self.getSetting("cors_allowed_origins", [])
-        if len(origins) is 0:
+        if len(origins) == 0:
             logger.error("CORS settings missing. Environment variable CORS_ALLOWED_ORIGINS not present.")
             raise RequiredSettingMissingException("CORS Settings missing. CORS_ALLOWED_ORIGINS not present.")
 
@@ -54,7 +54,7 @@ class Settings:
         """
         Constructs database URL from environment variables
         """
-        db_url = "postgresql://0:1@2/3"
+        db_url = "postgresql://POSTGRES_USER:POSTGRES_PASSWORD@POSTGRES_HOST:5432/POSTGRES_DB"
         l = ["POSTGRES_USER","POSTGRES_PASSWORD","POSTGRES_HOST","POSTGRES_DB"]
 
         for key in l:
@@ -63,8 +63,11 @@ class Settings:
                 logger.error(f"Unable to construct database url, missing env var {key}")
                 raise RequiredSettingMissingException(f"{key} missing")
             else:
-                db_url = db_url.replace(str(l.index(key)), val)
+                if val.__contains__("5432"):
+                    val = val.replace(":5432", "")
+                db_url = db_url.replace(key, val)
 
+        logger.error(db_url)
         return db_url
 
 
