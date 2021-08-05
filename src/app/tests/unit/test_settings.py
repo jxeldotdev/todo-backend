@@ -4,6 +4,7 @@ from app.settings import cfg
 import os
 import pytest
 
+
 def test_allowed_origins_env() -> None:
 
     origins = "http://localhost:8080,http://localhost:8000"
@@ -12,7 +13,8 @@ def test_allowed_origins_env() -> None:
     val = cfg.allowed_origins
 
     assert val == origins_list
-    assert type(val) is list
+    assert isinstance(val, list)
+
 
 def test_allowed_origins_no_env() -> None:
     """
@@ -25,6 +27,7 @@ def test_allowed_origins_no_env() -> None:
         val = cfg.allowed_origins
 
         assert len(val) is 0
+
 
 def test_database_url() -> None:
     os.environ['POSTGRES_USER'] = "user"

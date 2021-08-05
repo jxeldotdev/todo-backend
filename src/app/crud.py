@@ -1,17 +1,20 @@
 import logging
 
+from fastapi import Depends
 from sqlalchemy.exc import SQLAlchemyError
 import sqlalchemy
-from sqlalchemy.orm import Session, clear_mappers
+from sqlalchemy.orm import Session
 import uuid
 
-from app import models
-from app import schemas
+
+from app import models, schemas
+from app.auth import authHelper
+from app.settings import cfg
 
 logger = logging.getLogger(__name__)
 
 
-#TODO: Add logging in each functionß
+# TODO: Add logging in each function
 class Todo:
 
     def get_single(db: Session, todo_id: uuid.uuid4):
@@ -36,14 +39,11 @@ class Todo:
         if todos:
             return todos
 
-    def create(db: Session, todo: schemas.TodoCreate):
+    def create(db: Session, todo: schemas.TodoCreate, user_id: int):
         """
         Create a Todo Item
         """
-        db_todo = models.Todo(
-            title=todo.title,
-            notes=todo.notes,
-            completed=todo.completed)
+        db_todo = models.Todo(**todo.dict(), owner_id=user_id)
         db.add(db_todo)
         db.commit()
         db.refresh(db_todo)

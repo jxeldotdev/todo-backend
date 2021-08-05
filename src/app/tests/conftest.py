@@ -8,6 +8,7 @@ from app.settings import Settings
 
 import pytest
 
+
 @pytest.fixture(scope="module")
 def db() -> Generator:
     yield SessionLocal()

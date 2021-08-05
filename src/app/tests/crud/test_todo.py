@@ -1,13 +1,10 @@
 from sqlalchemy.orm import Session
 
 from app import crud
-from app.database import SessionLocal
-from app.schemas import Todo, TodoCreate, TodoDelete
+from app.schemas import Todo, TodoCreate
 from app.tests.utils import utils
 
 import uuid
-import typing
-from pytest import raises
 
 
 def test_create_item(db: Session) -> None:
