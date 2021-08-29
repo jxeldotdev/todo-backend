@@ -30,10 +30,9 @@ def test_allowed_origins_no_env() -> None:
 
 
 def test_database_url() -> None:
-    os.environ['POSTGRES_USER'] = "user"
-    os.environ['POSTGRES_PASSWORD'] = "password"
-    os.environ['POSTGRES_HOST'] = "host"
-    os.environ['POSTGRES_DB'] = 'database'
+    os.environ['POSTGRES_USER'] = "testUser"
+    os.environ['POSTGRES_PASSWORD'] = "testPass"
+    os.environ['POSTGRES_HOST'] = "testHost"
+    os.environ['POSTGRES_DB'] = 'testDb'
 
-    assert cfg.database_url == "postgresql://user:password@host/database"
-    raise Exception(cfg.database_url)
+    assert cfg.database_url == "postgresql://testUser:testPass@testHost/testDb"

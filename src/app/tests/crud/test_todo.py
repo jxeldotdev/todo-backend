@@ -18,7 +18,7 @@ def test_create_item(db: Session) -> None:
     assert todo.title == title
     assert todo.notes == notes
     assert todo.completed is False
-    assert isinstance(todo.id, uuid.UUID)
+    assert isinstance(todo.id, int)
 
 
 def test_get_todo(db: Session) -> None:

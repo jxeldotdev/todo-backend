@@ -27,5 +27,7 @@ class Todo(Base):
     title = Column(String(128), nullable=False)
     notes = Column(String(256), nullable=False)
     completed = Column(Boolean, nullable=False, default=False)
-    owner_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"))
-    owner = relationship("User", back_populates="items")
+    created_at = Column(
+        DateTime,
+        nullable=False,
+        default=datetime.datetime.utcnow)

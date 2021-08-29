@@ -28,7 +28,7 @@ def test_write_todo():
     """
 
     content = {
-        "title": "Example todo",
+        "title": "Example todo 123 123",
         "notes": "Example notes",
         "completed": "False",
     }
@@ -38,11 +38,12 @@ def test_write_todo():
         "/todo",
         json=content
     )
+    
     rsp = response.json()
 
     assert response.status_code == 201
 
-    assert utils.is_uuid(rsp["id"])
+    assert type(rsp["id"]) == int
     assert rsp["title"] == content["title"]
     assert rsp["notes"] == content["notes"]
     assert rsp["completed"] is False
@@ -110,21 +111,25 @@ def test_update_todo():
         "completed": "True",
     }
 
-    path = f"todo/{post_rsp['id']}"
+    path = f"/todo/{post_rsp['id']}"
 
     put = client.put(
         path,
         json=updated_content
     )
 
-    rsp = put.json()
+    put_rsp = put.json()
     post_rsp = post.json()
 
+    get_updated = client.get(path)
+    get_rsp = get_updated.json()
+
     assert put.status_code == 200
-    assert rsp["id"] == post_rsp["id"]
-    assert rsp["title"] == updated_content["title"]
-    assert rsp["notes"] == updated_content["notes"]
-    assert rsp["completed"]
+    assert put_rsp == {}
+    assert get_rsp["id"] == post_rsp["id"]
+    assert get_rsp["title"] == updated_content["title"]
+    assert get_rsp["notes"] == updated_content["notes"]
+    assert get_rsp["completed"]
 
 
 def test_delete_todo():

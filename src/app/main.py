@@ -2,7 +2,7 @@ import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import todo, health, auth, user
+from app.routers import todo, health
 from app.settings import cfg, RequiredSettingMissingException
 
 logging.basicConfig(level=logging.DEBUG)

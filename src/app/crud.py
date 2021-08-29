@@ -8,7 +8,6 @@ import uuid
 
 
 from app import models, schemas
-from app.auth import authHelper
 from app.settings import cfg
 
 logger = logging.getLogger(__name__)
@@ -39,11 +38,11 @@ class Todo:
         if todos:
             return todos
 
-    def create(db: Session, todo: schemas.TodoCreate, user_id: int):
+    def create(db: Session, todo: schemas.TodoCreate):
         """
         Create a Todo Item
         """
-        db_todo = models.Todo(**todo.dict(), owner_id=user_id)
+        db_todo = models.Todo(**todo.dict())
         db.add(db_todo)
         db.commit()
         db.refresh(db_todo)
@@ -62,7 +61,7 @@ class Todo:
 
     def update_todo(db: Session, todo: schemas.Todo, todo_id: uuid.UUID):
         """
-        Update an existing todo item or create oneo[]
+        Update an existing todo item or create one
         """
 
         db_todo = db.query(

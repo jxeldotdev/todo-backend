@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 # NOTE: These are Pydantic schemas that are used for request validation.
 # These are not related  to the database.
 
+
 class TodoDelete(BaseModel):
     pass
 
