@@ -38,12 +38,12 @@ def test_write_todo():
         "/todo",
         json=content
     )
-    
+
     rsp = response.json()
 
     assert response.status_code == 201
 
-    assert type(rsp["id"]) == int
+    assert isinstance(rsp["id"], int)
     assert rsp["title"] == content["title"]
     assert rsp["notes"] == content["notes"]
     assert rsp["completed"] is False

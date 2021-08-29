@@ -49,7 +49,13 @@ def read_todo(
     if not todo:
         logger.info(f"Todo item {todo_id} not found.")
         raise HTTPException(status_code=404, detail="Item not found")
-    return Todo(id=todo.id, title=todo.title, notes=todo.notes, completed=todo.completed)
+    return Todo(
+        id=todo.id,
+        title=todo.title,
+        completed=todo.completed,
+        notes=todo.notes,
+    )
+
 
 @router.post("", status_code=201, response_model=Todo, tags=["Todos"])
 def create_todo(
@@ -57,7 +63,11 @@ def create_todo(
         db: Session = Depends(get_db)):
     todo = crud.Todo.create(db, todo_in)
     logger.info(f"Created todo with ID of {todo.id}")
-    return Todo(id=todo.id, title=todo.title, notes=todo.notes, completed=todo.completed)
+    return Todo(
+        id=todo.id,
+        title=todo.title,
+        notes=todo.notes,
+        completed=todo.completed)
 
 
 @router.put("/{todo_id}", status_code=200, tags=["Todos"])
