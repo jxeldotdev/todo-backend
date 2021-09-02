@@ -18,7 +18,8 @@ def test_allowed_origins_env() -> None:
 
 def test_allowed_origins_no_env() -> None:
     """
-    Assert that RequiredSettingMissingException is raised when env var CORS_ALLOWED_ORIGINS is not present or is blank
+    Assert that RequiredSettingMissingException is raised when
+    env var CORS_ALLOWED_ORIGINS is not present or is blank
     """
 
     os.environ.pop("CORS_ALLOWED_ORIGINS")
@@ -26,7 +27,7 @@ def test_allowed_origins_no_env() -> None:
     with pytest.raises(RequiredSettingMissingException):
         val = cfg.allowed_origins
 
-        assert len(val) is 0
+        assert len(val) == 0
 
 
 def test_database_url() -> None:

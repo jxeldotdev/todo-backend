@@ -5,8 +5,6 @@ from app import crud
 from app.schemas import Todo, TodoCreate
 from app.tests.utils import utils
 
-import uuid
-
 
 def test_create_item(db: Session) -> None:
 
@@ -44,7 +42,8 @@ def test_get_incompleted_todos(db: Session) -> None:
     todo_item = TodoCreate(title=title, notes=notes)
     todo = crud.Todo.create(db, todo_item)
 
-    db_todo = crud.Todo.get_by_completion(db, completed=False, skip=0, limit=10)
+    db_todo = crud.Todo.get_by_completion(
+        db, completed=False, skip=0, limit=10)
 
     assert db_todo
     for todo in db_todo:
@@ -70,7 +69,8 @@ def test_complete_todo(db: Session) -> None:
     notes = "Example Notes"
     todo_item = TodoCreate(title=title, notes=notes)
     todo = crud.Todo.create(db, todo_item)
-    todo2 = Todo(id=todo.id, title=title, notes=notes, completed=True, created_at=todo.created_at)
+    todo2 = Todo(id=todo.id, title=title, notes=notes,
+                 completed=True, created_at=todo.created_at)
     todo_update = crud.Todo.update_todo(db, todo=todo2, todo_id=todo.id)
 
     assert todo_update
@@ -89,9 +89,9 @@ def test_update_todo_description(db: Session) -> None:
     todo = crud.Todo.create(db, todo_item)
 
     notes2 = "Updated notes"
-    todo2 = Todo(id=todo.id, title=title, notes=notes2, created_at=todo.created_at)
+    todo2 = Todo(id=todo.id, title=title, notes=notes2,
+                 created_at=todo.created_at)
     todo_update = crud.Todo.update_todo(db, todo=todo2, todo_id=todo.id)
-
 
     assert todo.id == todo_update.id
     assert todo.title == todo2.title
@@ -104,7 +104,7 @@ def test_delete_todo(db: Session) -> None:
     notes = "Example Notes"
     todo_in = TodoCreate(title=title, notes=notes)
     todo = crud.Todo.create(db, todo_in)
-    todo2 = crud.Todo.delete(db, todo.id)
+    crud.Todo.delete(db, todo.id)
     todo3 = crud.Todo.get_single(db, todo_id=todo.id)
 
     assert todo3 is None

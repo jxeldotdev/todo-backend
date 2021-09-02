@@ -1,7 +1,7 @@
+# noqa: E501
 from fastapi.testclient import TestClient
 from app import main
 from app.tests.utils import utils
-from app.settings import cfg
 import logging
 
 logger = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ def test_health_get():
 
 #     client = TestClient(main.app)
 #     old_db_url = cfg.database_url
-#     cfg.database_url = "postgresql://POSTGRES_USER:POSTGRES_PASSWORD@POSTGRES_HOST/POSTGRES_DB"
+# noqa: E501  cfg.database_url = "postgresql://POSTGRES_USER:POSTGRES_PASSWORD@POSTGRES_HOST/POSTGRES_DB"
 #     response = client.get("/health")
 #     assert response.status_code == 500
 #     cfg.database_url == old_db_url

@@ -19,7 +19,8 @@ try:
         allow_headers=["*"],
     )
 except RequiredSettingMissingException as e:
-    logger.error("Failed to configure CORS Middleware, required env vars not present")
+    logger.error(
+        "Failed to configure CORS Middleware, required env vars not present")
     logger.error(e)
 
 app.include_router(todo.router, prefix="/todo")

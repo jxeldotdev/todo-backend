@@ -24,7 +24,8 @@ def upgrade():
         sa.Column("title", sa.String(length=128), nullable=False),
         sa.Column("notes", sa.String(length=256), nullable=False),
         sa.Column("completed", sa.Boolean(), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=False, server_default=sa.sql.func.now()),
+        sa.Column("created_at", sa.DateTime(), nullable=False,
+                  server_default=sa.sql.func.now()),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("id"),
     )

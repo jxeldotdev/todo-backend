@@ -8,11 +8,10 @@ import logging
 from app.database import get_db
 
 from app import models
-from app import main
-
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
 
 @router.get("/", status_code=200)
 def app_health(db: Session = Depends(get_db)) -> Any:

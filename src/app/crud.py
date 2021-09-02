@@ -7,6 +7,8 @@ from app import models, schemas
 logger = logging.getLogger(__name__)
 
 # TODO: Add logging in each function
+
+
 class Todo:
     def get_single(db: Session, todo_id: int):
         """
@@ -24,7 +26,8 @@ class Todo:
         """
         Return todo items by completion status
         """
-        todos = db.query(models.Todo).filter(models.Todo.completed == completed).all()
+        todos = db.query(models.Todo).filter(
+            models.Todo.completed == completed).all()
         if todos:
             return todos
 
@@ -42,7 +45,8 @@ class Todo:
         """
         Delete a Todo Item by UUID
         """
-        db_todo = db.query(models.Todo).filter(models.Todo.id == todo_id).first()
+        db_todo = db.query(models.Todo).filter(
+            models.Todo.id == todo_id).first()
         if db_todo:
             db.delete(db_todo)
             db.commit()
@@ -52,7 +56,8 @@ class Todo:
         Update an existing todo item or create one
         """
 
-        db_todo = db.query(models.Todo).filter(models.Todo.id == todo.id).first()
+        db_todo = db.query(models.Todo).filter(
+            models.Todo.id == todo.id).first()
 
         if not db_todo:
             raise sqlalchemy.exc.NoSuchColumnError

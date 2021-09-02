@@ -1,5 +1,4 @@
 from typing import Any, Optional
-from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
@@ -8,9 +7,6 @@ import logging
 from app.schemas import Todo, TodoCreate
 from app.database import get_db
 from app import crud
-
-
-from app import models
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

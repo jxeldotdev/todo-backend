@@ -70,18 +70,23 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache          
-  lint-and-test:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Install linter
-        run: pip install pycodestyle
-          
+        run: pip install flake8
+      
       - name: Run linter
-        run: pycodestyle --ignore=E501 ./src
-
+        run: flake8
+  test:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
       - name: Copy env file
         run: cp .env.testing .env
 

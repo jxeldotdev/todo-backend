@@ -1,8 +1,7 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
-from pydantic import BaseModel, Field
-from sqlalchemy.sql.sqltypes import DateTime
+from pydantic import BaseModel
 
 # NOTE: These are Pydantic schemas that are used for request validation.
 # These are not related  to the database.

@@ -18,4 +18,5 @@ class Todo(Base):
     title = Column(String(128), nullable=False)
     notes = Column(String(256), nullable=False)
     completed = Column(Boolean, nullable=False, default=False)
-    created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow())
+    created_at = Column(DateTime, nullable=False,
+                        default=datetime.datetime.utcnow())

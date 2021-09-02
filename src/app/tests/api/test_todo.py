@@ -1,7 +1,6 @@
 from fastapi.testclient import TestClient
 from app import main
 from app.tests.utils import utils
-import json
 
 import logging
 
