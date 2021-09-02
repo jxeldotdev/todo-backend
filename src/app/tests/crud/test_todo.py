@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app import crud
@@ -32,6 +33,7 @@ def test_get_todo(db: Session) -> None:
     assert db_todo
     assert db_todo.title == title
     assert db_todo.notes == notes
+    assert isinstance(db_todo.created_at, datetime)
     assert db_todo.completed is False
 
 
@@ -42,8 +44,7 @@ def test_get_incompleted_todos(db: Session) -> None:
     todo_item = TodoCreate(title=title, notes=notes)
     todo = crud.Todo.create(db, todo_item)
 
-    db_todo = crud.Todo.get_by_completion(
-        db, completed=False, skip=0, limit=10)
+    db_todo = crud.Todo.get_by_completion(db, completed=False, skip=0, limit=10)
 
     assert db_todo
     for todo in db_todo:
@@ -69,7 +70,7 @@ def test_complete_todo(db: Session) -> None:
     notes = "Example Notes"
     todo_item = TodoCreate(title=title, notes=notes)
     todo = crud.Todo.create(db, todo_item)
-    todo2 = Todo(id=todo.id, title=title, notes=notes, completed=True)
+    todo2 = Todo(id=todo.id, title=title, notes=notes, completed=True, created_at=todo.created_at)
     todo_update = crud.Todo.update_todo(db, todo=todo2, todo_id=todo.id)
 
     assert todo_update
@@ -88,8 +89,9 @@ def test_update_todo_description(db: Session) -> None:
     todo = crud.Todo.create(db, todo_item)
 
     notes2 = "Updated notes"
-    todo2 = Todo(id=todo.id, title=title, notes=notes2)
+    todo2 = Todo(id=todo.id, title=title, notes=notes2, created_at=todo.created_at)
     todo_update = crud.Todo.update_todo(db, todo=todo2, todo_id=todo.id)
+
 
     assert todo.id == todo_update.id
     assert todo.title == todo2.title

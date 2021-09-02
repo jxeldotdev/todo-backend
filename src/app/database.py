@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 # TODO: Use TLS to connect
-engine = create_engine(cfg.database_url)
+engine = create_engine(cfg.database_url, connect_args={"connect_timeout": "10"})
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

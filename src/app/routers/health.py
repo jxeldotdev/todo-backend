@@ -1,16 +1,18 @@
 from typing import Any
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound
-
+import logging
 from app.database import get_db
 
 from app import models
 from app import main
 
-router = APIRouter()
+logger = logging.getLogger(__name__)
 
+router = APIRouter()
 
 @router.get("/", status_code=200)
 def app_health(db: Session = Depends(get_db)) -> Any:
@@ -19,14 +21,15 @@ def app_health(db: Session = Depends(get_db)) -> Any:
     """
 
     # Check database connection
-    main.logger.info("Running health check - selecting single todo from db")
+    logger.debug("Running health check - selecting single todo from db")
     try:
         db.query(models.Todo).one()
     except NoResultFound as e:
-        main.logger.info("No todos exist yet", e)
+        logger.info("No todos exist yet", e)
         success = True
-    else:
-        success = True
+    except SQLAlchemyError as e:
+        logger.critical("Failed to return Todos in Health Check", exc_info=e)
+        success = False
 
     if success:
         return HTTPException(200)

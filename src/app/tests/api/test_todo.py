@@ -34,10 +34,7 @@ def test_write_todo():
     }
 
     client = TestClient(main.app)
-    response = client.post(
-        "/todo",
-        json=content
-    )
+    response = client.post("/todo", json=content)
 
     rsp = response.json()
 
@@ -66,13 +63,11 @@ def test_read_todos():
         print(i)
         content["title"] = f"Example todo {i}"
         content["notes"] = f"Example notes {i}"
-        response = client.post(
-            "/todo",
-            json=content
-        )
+        response = client.post("/todo", json=content)
 
     response = client.get("/todo")
     rsp = response.json()
+    logger.info(rsp)
     assert response.status_code == 200
     assert len(rsp) >= 3
 
@@ -97,10 +92,7 @@ def test_update_todo():
         "completed": "False",
     }
 
-    post = client.post(
-        "/todo",
-        json=content
-    )
+    post = client.post("/todo", json=content)
 
     post_rsp = post.json()
 
@@ -109,14 +101,12 @@ def test_update_todo():
         "title": "Example todo 7",
         "notes": "Example notes 7",
         "completed": "True",
+        "created_at": post_rsp["created_at"]
     }
 
     path = f"/todo/{post_rsp['id']}"
 
-    put = client.put(
-        path,
-        json=updated_content
-    )
+    put = client.put(path, json=updated_content)
 
     put_rsp = put.json()
     post_rsp = post.json()

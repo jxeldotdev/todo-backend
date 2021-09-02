@@ -54,6 +54,7 @@ def read_todo(
         title=todo.title,
         completed=todo.completed,
         notes=todo.notes,
+        created_at=todo.created_at
     )
 
 
@@ -67,7 +68,9 @@ def create_todo(
         id=todo.id,
         title=todo.title,
         notes=todo.notes,
-        completed=todo.completed)
+        completed=todo.completed,
+        created_at=todo.created_at
+    )
 
 
 @router.put("/{todo_id}", status_code=200, tags=["Todos"])
