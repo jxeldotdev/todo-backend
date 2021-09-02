@@ -1,27 +1,22 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.sql.expression import false, null
-from sqlalchemy.sql.schema import UniqueConstraint
+import datetime
+import logging
 
+from sqlalchemy import Boolean, Column, String, DateTime, Integer
 from app.database import Base
 
-import uuid
-import secrets
+logger = logging.getLogger(__name__)
 
 
 class Todo(Base):
     """
     Table for todos.
     """
+
     __tablename__ = "todo"
 
-    id = Column(
-        UUID(
-            as_uuid=True),
-        primary_key=True,
-        default=uuid.uuid4,
-        unique=True)
+    id = Column(Integer, primary_key=True, unique=True)
     title = Column(String(128), nullable=False)
     notes = Column(String(256), nullable=False)
     completed = Column(Boolean, nullable=False, default=False)
+    created_at = Column(DateTime, nullable=False,
+                        default=datetime.datetime.utcnow())

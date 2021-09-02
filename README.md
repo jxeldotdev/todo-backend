@@ -1,31 +1,44 @@
 
 # todo-backend
-This is an example project to deploy a python (Fast API) todo app on AWS EKS.
 
-## Installation
-
+"Todo list" Rest API written in python with user login support. See https://github.com/jxeldotdev/todo-frontend
 
 ## Usage
 
+```shell
+docker-compose up -d db
+docker-compose pull
+docker-compose run --rm app migrate
+docker-compose up -d app
+```
+
+## Updating migrations
+```shell
+docker-compose run --rm --entrypoint sh app alembic revision --autogenerate -m "migration-name-here :)"
+```
+
+## Updating dependencies
+Update requirements.txt to match pipenv by running the following:
+```shell
+pipenv run pip freeze > requirements.txt
+```
 
 ## Contributing
 
 Unfortunately for this repository pull requests will not be merged into this projcet as it is a personal showcase.
 
-## Todo List
 
-[x] Create a Backend API
+## Functionality / project checklist
+- [x] Add logging to the application
 
-[] Create Unit tests for API
+- [x] Automate tests of App using CI
 
-[] Add logging to the application
 
-[] Create a Helm chart for the application
 
-[] Automate tests of App using CI
+- [ ] Create a Helm chart for the application
 
-[] Create a seperate repo with Terraform configuration for EKS infrastructure
+- [ ] Create a seperate repo with Terraform configuration for EKS infrastructure
 
-[] Automate deployment of application
+- [ ] Automate deployment of application
 
-[] Add monitoring to app with Prometheus
+- [ ] Add monitoring to app with Prometheus

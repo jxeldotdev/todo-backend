@@ -1,7 +1,7 @@
-from typing import List, Optional
-import uuid
+from datetime import datetime
+from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 # NOTE: These are Pydantic schemas that are used for request validation.
 # These are not related  to the database.
@@ -21,10 +21,11 @@ class TodoCreate(BaseModel):
 
 
 class Todo(BaseModel):
-    id: uuid.UUID
+    id: int
     title: str
-    notes: str
+    notes: Optional[str] = None
     completed: bool = False
+    created_at: datetime
 
     class Config:
         orm_mode: True

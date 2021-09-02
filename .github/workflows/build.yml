@@ -37,7 +37,7 @@ jobs:
       - name: Create docker tag variable
         id: tags
         run: | 
-          echo "::set-output name=branch_name::$(git rev-parse --short HEAD)$(git branch --no-color --show-current)"
+          echo "::set-output name=branch_name::$(git branch --no-color --show-current)-$(git rev-parse --short HEAD)"
       
       - name: Build and push
         uses: docker/build-push-action@v2
@@ -69,21 +69,24 @@ jobs:
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
-          
-  lint-and-test:
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache          
+  lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Install linter
-        run: pip install pycodestyle
-          
+        run: pip install flake8
+      
       - name: Run linter
-        run: pycodestyle ./src
-
+        run: flake8
+  test:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
       - name: Copy env file
         run: cp .env.testing .env
 
@@ -99,6 +102,6 @@ jobs:
 
       - name: Run unit tests
         run: docker-compose run --rm app test
-
+  
 
       

@@ -4,11 +4,11 @@ for var in POSTGRES_USER POSTGRES_PASSWORD POSTGRES_DB POSTGRES_HOST ; do
     if ! env | grep -c "$var" > /dev/null; then echo "Required variable $var is unset" 1>&2; exit 1; fi
 done
 
-cd /home/todoapp/src
+cd $HOME/src
 
-case "$@" in 
+case "$@" in
     web)
-        exec uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+        exec uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload --reload-dir app/
         ;;
     migrate)
         exec alembic upgrade head

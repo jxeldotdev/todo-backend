@@ -1,6 +1,4 @@
-from typing import Dict, Generator, Any
-
-from app.database import SessionLocal, engine
+from app.database import engine
 from app import models
 
 import uuid

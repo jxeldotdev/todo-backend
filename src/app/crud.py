@@ -1,21 +1,18 @@
-from fastapi.exceptions import HTTPException
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.sql.functions import mode
-from app.database import SQLALCHEMY_DATABASE_URL
+import logging
 import sqlalchemy
-from sqlalchemy.orm import Session, clear_mappers
-import uuid
+from sqlalchemy.orm import Session
 
 from app import models, schemas
 
-# Todo Items
+logger = logging.getLogger(__name__)
+
+# TODO: Add logging in each function
 
 
 class Todo:
-
-    def get_single(db: Session, todo_id: uuid.uuid4):
+    def get_single(db: Session, todo_id: int):
         """
-        Return Todo Item by UUID
+        Return Todo Item by ID
         """
         return db.query(models.Todo).filter(models.Todo.id == todo_id).first()
 
@@ -29,8 +26,7 @@ class Todo:
         """
         Return todo items by completion status
         """
-        todos = db.query(
-            models.Todo).filter(
+        todos = db.query(models.Todo).filter(
             models.Todo.completed == completed).all()
         if todos:
             return todos
@@ -39,33 +35,28 @@ class Todo:
         """
         Create a Todo Item
         """
-        db_todo = models.Todo(
-            title=todo.title,
-            notes=todo.notes,
-            completed=todo.completed)
+        db_todo = models.Todo(**todo.dict())
         db.add(db_todo)
         db.commit()
         db.refresh(db_todo)
         return db_todo
 
-    def delete(db: Session, todo_id: uuid.UUID):
+    def delete(db: Session, todo_id: int):
         """
         Delete a Todo Item by UUID
         """
-        db_todo = db.query(
-            models.Todo).filter(
+        db_todo = db.query(models.Todo).filter(
             models.Todo.id == todo_id).first()
         if db_todo:
             db.delete(db_todo)
             db.commit()
 
-    def update_todo(db: Session, todo: schemas.Todo, todo_id: uuid.UUID):
+    def update_todo(db: Session, todo: schemas.Todo, todo_id: int):
         """
-        Update an existing todo item or create oneo[]
+        Update an existing todo item or create one
         """
 
-        db_todo = db.query(
-            models.Todo).filter(
+        db_todo = db.query(models.Todo).filter(
             models.Todo.id == todo.id).first()
 
         if not db_todo:
@@ -74,6 +65,7 @@ class Todo:
             db_todo.title = todo.title
             db_todo.notes = todo.notes
             db_todo.completed = todo.completed
+            db_todo.created_at = todo.created_at
             db.commit()
 
         return db_todo
