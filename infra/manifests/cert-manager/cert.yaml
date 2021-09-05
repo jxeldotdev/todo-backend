@@ -1,0 +1,16 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: todo-backend-ingress-letsencrypt
+  namespace: todo-backend
+spec:
+  secretName: tls-secret-letsencrypt
+  duration: 170000h
+  renewBefore: 72h
+  issuerRef:
+    name: letsencrypt-staging
+    kind: ClusterIssuer
+  dnsNames:
+    - "todo.jxel.dev"
+    - "api.todo.jxel.dev"
+ 

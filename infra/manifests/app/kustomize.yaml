@@ -1,0 +1,20 @@
+# ---
+# apiVersion: kustomize.config.k8s.io/v1beta1
+# kind: Kustomization
+# secretGenerator:
+# - name: todo-backend-db-credentials
+#   namespace: todo-backend
+#   files:
+#     envs:
+#     - secrets/env
+# configMapGenerator:
+# - name: todo-backend-config
+#   namespace: todo-backend
+#   env:
+
+# resources:
+# - namespace.yaml
+# - configmap.yaml
+# - deployment.yaml
+# - service.yaml
+# - ingress.yaml

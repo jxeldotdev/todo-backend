@@ -136,3 +136,6 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+apikey
+infra/manifests/cert-manager/secret.yaml

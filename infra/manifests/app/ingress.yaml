@@ -4,9 +4,15 @@ metadata:
   name: todo-backend-ingress
   namespace: todo-backend
   annotations:
-    # kubernetes.io/ingress.class: nginx
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  tls:
+    - hosts:
+      - "api.todo.jxel.dev"
+      secretName: tls-secret-letsencrypt
   rules:
   - host: api.todo.jxel.dev
     http:

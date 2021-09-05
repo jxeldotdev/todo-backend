@@ -62,18 +62,3 @@ spec:
             items:
               - key: nginx.conf
                 path: nginx.conf
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: todo-backend
-  namespace: todo-backend
-spec:
-  selector:
-    app: todo-backend
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-  type: LoadBalancer
-  
