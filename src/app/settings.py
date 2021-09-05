@@ -22,11 +22,11 @@ class Settings:
 
         env_key = str(key).upper()
         try:
-            val = getenv(env_key).strip("\n")
+            val = getenv(env_key)
             if val is not None:
                 if "," in val:
                     return val.split(",")
-                return val
+                return val.strip("\n")
             else:
                 logger.error(f"Environment variable {env_key} not present")
                 return default
