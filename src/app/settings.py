@@ -26,7 +26,7 @@ class Settings:
             if val is not None:
                 if "," in val:
                     return val.split(",")
-                return val
+                return val.strip("\n")
             else:
                 logger.error(f"Environment variable {env_key} not present")
                 return default
