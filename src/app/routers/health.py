@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.get("/", status_code=200)
+@router.get("", status_code=200)
 def app_health(db: Session = Depends(get_db)) -> Any:
     """
     Checks database connection and returns 200 if it is OK

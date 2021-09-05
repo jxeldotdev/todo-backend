@@ -22,7 +22,7 @@ class Settings:
 
         env_key = str(key).upper()
         try:
-            val = getenv(env_key)
+            val = getenv(env_key).strip("\n")
             if val is not None:
                 if "," in val:
                     return val.split(",")
