@@ -14,8 +14,6 @@ metadata:
   name: todo-backend-nginx-config
   namespace: todo-backend
 data:
-  NGINX_ENVSUBST_OUTPUT_DIR: "/etc/nginx"
-  NGINX_BACKEND: "localhost"
   nginx.conf: |
     user nginx;
 

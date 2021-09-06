@@ -13,4 +13,6 @@ spec:
   dnsNames:
     - "todo.jxel.dev"
     - "api.todo.jxel.dev"
+    - "int.todo.jxel.dev"
+    - "logging.int.todo.jxel.dev"
  
