@@ -1,0 +1,6 @@
+
+image:
+  tag: "ci-and-infrastructure-4d9cbc0"
+
+config:
+  postgresHost: "host.minikube.internal"
