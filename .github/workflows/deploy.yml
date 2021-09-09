@@ -1,0 +1,25 @@
+name: Deploy App to AWS
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Name of branch / environment to deploy to."
+        required: true
+      image-tag:
+        description: "Docker image tag to deploy"
+        required: true
+
+jobs:
+  deploy-to-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      # Calculate Values
+
+   deploy-to-prod:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+           

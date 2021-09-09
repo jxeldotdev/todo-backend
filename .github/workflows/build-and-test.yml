@@ -1,4 +1,4 @@
-name: Build Docker Image
+name: Build Docker Image and Run Tests
 on:
   push:
     tags: v[1-9]+[0-9]+.[0-9]+
@@ -70,7 +70,8 @@ jobs:
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache          
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache  
+        
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -82,8 +83,23 @@ jobs:
       
       - name: Run linter
         run: flake8
-  test:
+
+  scan-dependencies-safety:
     runs-on: ubuntu-latest
+    steps:
+      - name: ""
+        uses: ""
+
+  scan-code-semgrep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ""
+        uses: ""
+
+  test-unit:
+    runs-on: ubuntu-latest
+    needs: 
+      - build-docker-image
     steps: 
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -103,6 +119,13 @@ jobs:
 
       - name: Run unit tests
         run: docker-compose run --rm app test
-  
 
-      
+  trigger-deployment:
+    needs:
+      - test-unit
+      - lint
+      - build-docker-image
+      - scan-dependencies-safety
+      - scan-code-semgrep
+    runs-on: ubuntu-latest
+    

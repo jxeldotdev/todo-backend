@@ -12,12 +12,10 @@ uvicorn = {extras = ["standard"], version = "*"}
 gunicorn = "*"
 pytest = "*"
 requests = "*"
-passlib = {extras = ["bcrypt"], version = "*"}
-python-jose = {extras = ["cryptography"], version = "*"}
 python-multipart = "*"
 
 [dev-packages]
 autopep8 = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"
