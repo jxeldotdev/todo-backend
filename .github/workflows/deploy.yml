@@ -15,11 +15,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      # Calculate Values
 
    deploy-to-prod:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-           
