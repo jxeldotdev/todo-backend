@@ -1,3 +1,4 @@
+/*
 terraform {
   backend "s3" {
     bucket = "jfreeman-todo-backend"
@@ -5,8 +6,16 @@ terraform {
     region = "ap-southeast-2"
   }
 }
+^ Will need to be templated.. :(
+
+*/
 
 /* Static Website */
+
+module "website" {
+  source  = "git@github.com:jxeldotdev/tf-s3-static-website.git"
+  domains = ["${var.frontend_domain}.jxel.dev", "www.${var.frontend_domain}.jxel.dev"]
+}
 
 
 /* RDS Instance */
