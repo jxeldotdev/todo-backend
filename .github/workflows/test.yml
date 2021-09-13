@@ -1,0 +1,63 @@
+name: Test, Lint and scan Application for vulnerabilities
+on:
+  workflow_run:
+    workflows: ["Build Docker Image and Run Tests"]
+    types:
+      - completed
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install linter
+        run: pip install flake8
+      - name: Run linter
+        run: flake8 -v src/
+
+  scan-dependencies-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install safety
+        run: pip install safety
+      - name: Run safety (dependency scanner)
+        run: safety check --full-report
+
+  scan-code-semgrep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Scan codebase with semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/ci
+            p/owasp-top-ten
+  test:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Copy env file
+        run: cp .env.testing .env
+
+      - name: Start postgres
+        run: docker-compose up -d db
+
+      - name: Pull latest app image
+        run: |
+          docker-compose pull app
+
+      - name: Run database migrations
+        run: docker-compose run --rm app migrate
+
+      - name: Run unit tests
+        run: docker-compose run --rm app test
