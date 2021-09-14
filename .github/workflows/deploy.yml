@@ -1,4 +1,4 @@
-name: Deploy App to AWS
+name: Deploy AWS Resources
 on:
   workflow_dispatch:
     inputs:
@@ -15,7 +15,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
+      - name: Substitute Environment Variables
+        run: | 
+          echo "TODO"
+          exit 0
    deploy-to-prod:
     runs-on: ubuntu-latest
     steps:

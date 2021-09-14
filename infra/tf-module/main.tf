@@ -1,14 +1,12 @@
-/*
+
+# ENVIRONMENT and BRANCH_NAME are substituted with environment variables :)
 terraform {
   backend "s3" {
-    bucket = "jfreeman-todo-backend"
-    key    = "todo-backend-${var.branch_name}"
+    bucket = "jfreeman-todo-backend-${ENVIRONMENT}"
+    key    = "todo-backend-${BRANCH_NAME}"
     region = "ap-southeast-2"
   }
 }
-^ Will need to be templated.. :(
-
-*/
 
 locals {
   tags = {
@@ -87,12 +85,26 @@ data "aws_secretsmanager_secret_version" "db_secret" {
   secret_id     = aws_secretsmanager_secret.db_credentials_secret.id
 }
 
-/* RDS Instance */
 
+data "aws_subnet_ids" "db" {
+  vpc_id = var.vpc_id
+  tags = {
+    app = "todo"
+    managed-by = "Terraform"
+    environement = var.environment
+    tier = "database"
+  }
+}
+
+data "aws_security_group" "selected" {
+  id = var.security_group_id
+}
+
+/* RDS Instance */
 module "db" {
   source = "terraform-aws-modules/rds/aws"
 
-  identifier = "${var.environment}-${var.branch_name}-db"
+  identifier = "todo-${var.environment}-${var.branch_name}-db"
 
   engine               = "postgres"
   engine_version       = "13.3"
@@ -105,13 +117,14 @@ module "db" {
   storage_encrypted     = true
 
   name     = var.db_name
-  username = var.db_user
+  username = var.master_db_user
   password = data.aws_secretsmanager_secret_version.db_credentials_secret.secret_string
   port     = 5432
 
-  multi_az               = true
-  subnet_ids             = module.vpc.database_subnets
-  vpc_security_group_ids = [module.security_group.security_group_id]
+  multi_az               = (var.environment = "production" ? true : false)
+  subnet_ids             = data.aws_subnet_ids.db.ids
+  vpc_security_group_ids = [var.db_sg_ids]
+  db_subnet_group_name   = 
 
   maintenance_window              = "Mon:00:00-Mon:03:00"
   backup_window                   = "03:00-06:00"
@@ -119,7 +132,7 @@ module "db" {
 
   backup_retention_period = var.backup_retention_period
   skip_final_snapshot     = true
-  deletion_protection     = var.db_deletion_protection
+  deletion_protection     = (var.environment = "production" ? true : false)
 
   performance_insights_enabled          = true
   performance_insights_retention_period = 7
@@ -138,6 +151,4 @@ module "db" {
       value = "utf8"
     }
   ]
-
-  tags = local.tags
-}
+} 

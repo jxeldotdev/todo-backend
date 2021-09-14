@@ -1,3 +1,4 @@
+/* Environment and domain related variables */
 variable "frontend_domain_prefix" {
   type        = string
   default     = "${var.branch_name}-${var.environment}.todo"
@@ -16,24 +17,22 @@ variable "branch_name" {
 
 variable "environment" {
   type        = string
-  default     = "dev"
-  description = "description"
+  default     = "development"
+  description = "Name of environment. Possible values: development, production"
 }
 
-
 /* Database Variables */
-
 
 variable "db_name" {
   type        = string
   default     = "todo"
-  description = "description"
+  description = "Name of database that will be created in the RDS instance."
 }
 
-variable "db_user" {
+variable "master_db_user" {
   type        = string
-  default     = "app"
-  description = "description"
+  default     = "master"
+  description = "Name of Master Database User"
 }
 
 variable "db_instance_class" {
@@ -45,5 +44,11 @@ variable "db_instance_class" {
 variable "db_monitoring_role_name" {
   type        = string
   default     = ""
+  description = "description"
+}
+
+variable "backup_retention_period" {
+  type        = string
+  default     = "7"
   description = "description"
 }
