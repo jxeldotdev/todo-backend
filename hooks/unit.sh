@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Running $BASH_SOURCE"
+echo "Running unit tests"
 
 docker-compose run up -d db
 docker-compose run --rm app migrate
