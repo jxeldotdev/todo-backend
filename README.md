@@ -33,9 +33,9 @@ Unfortunately for this repository pull requests will not be merged into this pro
 
 ## Functionality / project checklist
 
-- [ ] Create a Helm chart for the application
+- [X] Create a Helm chart for the application
 
-- [ ] Create a seperate repo with Terraform configuration for EKS infrastructure
+- [X] Create a seperate repo with Terraform configuration for EKS infrastructure
 
 - [ ] Automate deployment of application
 

@@ -16,7 +16,7 @@ A helm chart should be created for the application manifests.
 
 ![CID Diagram](backend-ci-pipeline-revision-1.png)
 
-Diagram feedback:
+Diagram feedback to implement:
 * Remove the "Run Unit Tests"
 * How do i know what version of postgres to run, e.g matching it in production? Is it static?
 * Figure out how to comment on the issue if there is an issue, or pull request etc...

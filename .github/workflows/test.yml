@@ -61,3 +61,26 @@ jobs:
 
       - name: Run unit tests
         run: docker-compose run --rm app test
+
+  trigger-deployment:
+    runs-on: ubuntu-latest
+    needs:
+      - test
+      - scan-code-semgrep
+      - scan-dependencies-safety
+      - lint
+    steps:
+      - name: Calculate environment and image tag
+        id: calculate-values
+        run: |
+          echo "::set-output name=branch_name::$(git branch --no-color --show-current)-$(git rev-parse --short HEAD)"
+          if [ $(git branch) -ne "master" ]; then ENVIRONMENT_NAME="dev"; else ENVIRONMENT_NAME="prod"; fi
+
+          echo "::set-output name=environment::echo $ENVIRONMENT_NAME"
+      - name: Invoke workflow without inputs
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Deploy AWS Resources
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          inputs: '{ "environment": "${{ steps.calculate-values.outputs.environment }}", "image-tag": ${{ steps.calculate-values.outputs.branch_name }} }'
+          

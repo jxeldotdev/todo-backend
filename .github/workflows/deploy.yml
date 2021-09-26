@@ -11,16 +11,49 @@ on:
 
 jobs:
   deploy-to-dev:
-    runs-on: ubuntu-latest
+    # dev-cluster-runner
+    runs-on: self-hosted
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Substitute Environment Variables
-        run: | 
-          echo "TODO"
-          exit 0
+
+      - name: Setup Terraform
+      - uses: hashicorp/setup-terraform@v1
+
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
+          web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+      
+      - name: get-caller-identity
+        run: |
+          aws sts get-caller-identity
+
    deploy-to-prod:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Setup Terraform
+      - uses: hashicorp/setup-terraform@v1
+
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
+          web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+      
+      - name: get-caller-identity
+        run: |
+          aws sts get-caller-identity
+      

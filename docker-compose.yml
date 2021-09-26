@@ -7,12 +7,11 @@ services:
       - 5432:5432
     env_file: .env
     volumes:
-      - data:/var/lib/postgresql/data
+      - data:/var/lib/postgresql/data:z
   app:
-    build: .
     image: joelfreeman/todo-backend:latest
     volumes:
-      - ./src/:/home/todoapp/src/
+      - ./src/:/home/todoapp/src/:z
     ports:
       - 8080:8080
     env_file: .env
@@ -23,7 +22,7 @@ services:
     ports:
       - 80:80
     volumes:
-      - ./infra/conf/nginx.conf.template:/etc/nginx/templates/nginx.conf.template
+      - ./infra/conf/nginx.conf.template:/etc/nginx/templates/nginx.conf.template:z
     environment:
       NGINX_ENVSUBST_OUTPUT_DIR: "/etc/nginx/"
       NGINX_BACKEND: "app"
