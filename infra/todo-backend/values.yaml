@@ -9,7 +9,7 @@ replicaCount: 3
 image:
   repository: joelfreeman/todo-backend
   pullPolicy: IfNotPresent
-  tag: ""
+  tag: "latest"
   nginxTag: 1.14.2
 
 config:
