@@ -34,7 +34,7 @@ module "website" {
 resource "helm_release" "backend" {
   name       = "todo-backend-${var.branch_name}-${var.environment}"
   chart      = "../todo-backend/"
-  
+
   set {
     name  = "image.tag"
     value = var.docker_image_tag
@@ -124,7 +124,7 @@ module "db" {
   multi_az               = (var.environment = "production" ? true : false)
   subnet_ids             = data.aws_subnet_ids.db.ids
   vpc_security_group_ids = [var.db_sg_ids]
-  db_subnet_group_name   = 
+  db_subnet_group_name   =
 
   maintenance_window              = "Mon:00:00-Mon:03:00"
   backup_window                   = "03:00-06:00"
@@ -151,4 +151,4 @@ module "db" {
       value = "utf8"
     }
   ]
-} 
+}

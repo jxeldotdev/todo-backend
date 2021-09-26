@@ -10,7 +10,7 @@ RUN pip install --upgrade pip && \
     postgresql-dev \
     musl-dev \
     python3-dev \
-    cargo 
+    cargo
 
 
 # Create a user for the application so it's not running as root

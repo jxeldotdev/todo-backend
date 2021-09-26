@@ -1,6 +1,7 @@
-from typing import Generator
-from app.database import SessionLocal
+from collections.abc import Generator
+
 import pytest
+from app.database import SessionLocal
 
 
 @pytest.fixture(scope="module")

@@ -20,7 +20,7 @@ Diagram feedback to implement:
 * Remove the "Run Unit Tests"
 * How do i know what version of postgres to run, e.g matching it in production? Is it static?
 * Figure out how to comment on the issue if there is an issue, or pull request etc...
-    * If it is a PR, `GITHUB_REF` will contain 
+    * If it is a PR, `GITHUB_REF` will contain
 * Maybe only run destroy on branch - it could check for a .destroy file ( which could contain the workspace name) and have manual actions to prevent accidental deletion.
 
 Destroy flow:

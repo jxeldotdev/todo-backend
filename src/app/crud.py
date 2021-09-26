@@ -1,8 +1,9 @@
 import logging
-import sqlalchemy
-from sqlalchemy.orm import Session
 
-from app import models, schemas
+import sqlalchemy
+from app import models
+from app import schemas
+from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,8 @@ class Todo:
         Return todo items by completion status
         """
         todos = db.query(models.Todo).filter(
-            models.Todo.completed == completed).all()
+            models.Todo.completed == completed,
+        ).all()
         if todos:
             return todos
 
@@ -46,7 +48,8 @@ class Todo:
         Delete a Todo Item by UUID
         """
         db_todo = db.query(models.Todo).filter(
-            models.Todo.id == todo_id).first()
+            models.Todo.id == todo_id,
+        ).first()
         if db_todo:
             db.delete(db_todo)
             db.commit()
@@ -57,7 +60,8 @@ class Todo:
         """
 
         db_todo = db.query(models.Todo).filter(
-            models.Todo.id == todo.id).first()
+            models.Todo.id == todo.id,
+        ).first()
 
         if not db_todo:
             raise sqlalchemy.exc.NoSuchColumnError

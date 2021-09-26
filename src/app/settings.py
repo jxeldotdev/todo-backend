@@ -1,7 +1,6 @@
 import logging
-
-from typing import List
 from os import getenv
+from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +29,7 @@ class Settings:
             else:
                 logger.error(f"Environment variable {env_key} not present")
                 return default
-        except EnvironmentError as e:
+        except OSError as e:
             logger.error(e)
             logger.error(f"Environment variable {env_key} not present")
 
@@ -45,9 +44,10 @@ class Settings:
         origins = self.getSetting("cors_allowed_origins", [])
         if len(origins) == 0:
             logger.error(
-                "Environment variable CORS_ALLOWED_ORIGINS not present.")
+                "Environment variable CORS_ALLOWED_ORIGINS not present.",
+            )
             raise RequiredSettingMissingException(
-                "CORS Settings missing. CORS_ALLOWED_ORIGINS not present."
+                "CORS Settings missing. CORS_ALLOWED_ORIGINS not present.",
             )
         logger.debug(f"Returning CORS Origins from settings - {origins}")
         return origins
@@ -60,14 +60,17 @@ class Settings:
         db_url = (
             "postgresql://POSTGRES_USER:POSTGRES_PASSWORD@POSTGRES_HOST/POSTGRES_DB"  # noqa: E501
         )
-        db_vars = ["POSTGRES_USER", "POSTGRES_PASSWORD",
-                   "POSTGRES_HOST", "POSTGRES_DB"]
+        db_vars = [
+            "POSTGRES_USER", "POSTGRES_PASSWORD",
+            "POSTGRES_HOST", "POSTGRES_DB",
+        ]
 
         for key in db_vars:
             val = self.getSetting(key)
             if val is None:
                 logger.error(
-                    f"Unable to construct database url, missing env var {key}")
+                    f"Unable to construct database url, missing env var {key}",
+                )
                 raise RequiredSettingMissingException(f"{key} missing")
             else:
                 db_url = db_url.replace(key, val)

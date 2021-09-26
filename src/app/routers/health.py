@@ -1,13 +1,14 @@
+import logging
 from typing import Any
-from fastapi import APIRouter, Depends
+
+from app import models
+from app.database import get_db
+from fastapi import APIRouter
+from fastapi import Depends
 from fastapi.exceptions import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound
-import logging
-from app.database import get_db
-
-from app import models
 logger = logging.getLogger(__name__)
 
 router = APIRouter()

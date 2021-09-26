@@ -1,8 +1,9 @@
 # noqa: E501
-from fastapi.testclient import TestClient
+import logging
+
 from app import main
 from app.tests.utils import utils
-import logging
+from fastapi.testclient import TestClient
 
 logger = logging.getLogger(__name__)
 

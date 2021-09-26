@@ -5,8 +5,8 @@ Revises: 4ee595c9eacd
 Create Date: 2021-08-29 14:32:26.630921
 
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
 # revision identifiers, used by Alembic.
@@ -24,8 +24,10 @@ def upgrade():
         sa.Column("title", sa.String(length=128), nullable=False),
         sa.Column("notes", sa.String(length=256), nullable=False),
         sa.Column("completed", sa.Boolean(), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=False,
-                  server_default=sa.sql.func.now()),
+        sa.Column(
+            "created_at", sa.DateTime(), nullable=False,
+            server_default=sa.sql.func.now(),
+        ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("id"),
     )

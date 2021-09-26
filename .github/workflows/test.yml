@@ -42,10 +42,10 @@ jobs:
             p/owasp-top-ten
   test:
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        
+
       - name: Copy env file
         run: cp .env.testing .env
 
@@ -83,4 +83,3 @@ jobs:
           workflow: Deploy AWS Resources
           token: ${{ secrets.PERSONAL_TOKEN }}
           inputs: '{ "environment": "${{ steps.calculate-values.outputs.environment }}", "image-tag": ${{ steps.calculate-values.outputs.branch_name }} }'
-          

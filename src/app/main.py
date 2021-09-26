@@ -1,9 +1,11 @@
 import logging
 
+from app.routers import health
+from app.routers import todo
+from app.settings import cfg
+from app.settings import RequiredSettingMissingException
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import todo, health
-from app.settings import cfg, RequiredSettingMissingException
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -20,7 +22,8 @@ try:
     )
 except RequiredSettingMissingException as e:
     logger.error(
-        "Failed to configure CORS Middleware, required env vars not present")
+        "Failed to configure CORS Middleware, required env vars not present",
+    )
     logger.error(e)
 
 app.include_router(todo.router, prefix="/todo")

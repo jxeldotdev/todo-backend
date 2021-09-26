@@ -19,6 +19,6 @@ case "$@" in
     *)
         echo "Unknown command specified - command was $@" 1>&2
         echo "Available commands: web, migrate, test" 1>&2
-        exit 1 
+        exit 1
         ;;
 esac

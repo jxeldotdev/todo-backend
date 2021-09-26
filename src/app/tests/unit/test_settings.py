@@ -1,8 +1,8 @@
-from app.settings import RequiredSettingMissingException
-from app.settings import cfg
-
 import os
+
 import pytest
+from app.settings import cfg
+from app.settings import RequiredSettingMissingException
 
 
 def test_allowed_origins_env() -> None:

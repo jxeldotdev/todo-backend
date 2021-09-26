@@ -1,12 +1,15 @@
-from typing import Any, Optional
-from fastapi import APIRouter, Depends
+import logging
+from typing import Any
+from typing import Optional
+
+from app import crud
+from app.database import get_db
+from app.schemas import Todo
+from app.schemas import TodoCreate
+from fastapi import APIRouter
+from fastapi import Depends
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
-import logging
-
-from app.schemas import Todo, TodoCreate
-from app.database import get_db
-from app import crud
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -17,7 +20,7 @@ def read_todos(
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
         completed: Optional[bool] = None,
-        db: Session = Depends(get_db)
+        db: Session = Depends(get_db),
 ) -> Any:
     """
     Retrieve all todo items.
@@ -25,7 +28,8 @@ def read_todos(
     logger.debug("Retrieving all todo items")
     if completed is not None:
         todos = crud.Todo.get_by_completion(
-            db, skip=skip, limit=limit, completed=completed)
+            db, skip=skip, limit=limit, completed=completed,
+        )
 
     todos = crud.Todo.get_all(db, skip, limit)
     if todos:
@@ -50,14 +54,15 @@ def read_todo(
         title=todo.title,
         completed=todo.completed,
         notes=todo.notes,
-        created_at=todo.created_at
+        created_at=todo.created_at,
     )
 
 
 @router.post("", status_code=201, response_model=Todo, tags=["Todos"])
 def create_todo(
         todo_in: TodoCreate,
-        db: Session = Depends(get_db)):
+        db: Session = Depends(get_db),
+):
     todo = crud.Todo.create(db, todo_in)
     logger.info(f"Created todo with ID of {todo.id}")
     return Todo(
@@ -65,13 +70,16 @@ def create_todo(
         title=todo.title,
         notes=todo.notes,
         completed=todo.completed,
-        created_at=todo.created_at
+        created_at=todo.created_at,
     )
 
 
 @router.put("/{todo_id}", status_code=200, tags=["Todos"])
-def update_todo(todo_id, todo_in: Todo, db: Session = Depends(
-        get_db)) -> Any:
+def update_todo(
+    todo_id, todo_in: Todo, db: Session = Depends(
+        get_db,
+    ),
+) -> Any:
     todo = crud.Todo.get_single(db, todo_id)
     if not todo:
         logger.info(f"Todo item {todo_id} not found")

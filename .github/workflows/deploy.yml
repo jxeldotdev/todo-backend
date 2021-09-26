@@ -29,7 +29,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
           web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
-      
+
       - name: get-caller-identity
         run: |
           aws sts get-caller-identity
@@ -52,8 +52,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
           web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
-      
+
       - name: get-caller-identity
         run: |
           aws sts get-caller-identity
-      

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectPlainTextFileTypeManager">
-    <file url="file://$PROJECT_DIR$/src/alembic/versions/5b849986206c_removed_unused_columns.py" />
-    <file url="file://$PROJECT_DIR$/src/alembic/versions/5e27d7791280_changed_uuid_to_int.py" />
-  </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.9 (todo-backend-9KT7DB-c)" project-jdk-type="Python SDK" />
-</project>

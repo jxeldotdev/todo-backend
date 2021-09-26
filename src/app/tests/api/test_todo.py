@@ -1,8 +1,8 @@
-from fastapi.testclient import TestClient
+import logging
+
 from app import main
 from app.tests.utils import utils
-
-import logging
+from fastapi.testclient import TestClient
 
 # from app.tests import helpers
 
@@ -100,7 +100,7 @@ def test_update_todo():
         "title": "Example todo 7",
         "notes": "Example notes 7",
         "completed": "True",
-        "created_at": post_rsp["created_at"]
+        "created_at": post_rsp["created_at"],
     }
 
     path = f"/todo/{post_rsp['id']}"

@@ -1,9 +1,9 @@
-version: '3'
+version: "3"
 
 services:
   db:
     image: postgres:alpine
-    ports: 
+    ports:
       - 5432:5432
     env_file: .env
     volumes:
@@ -16,7 +16,7 @@ services:
       - 8080:8080
     env_file: .env
     command: web
-    depends_on: ['db']
+    depends_on: ["db"]
   nginx:
     image: nginx:1.14.2
     ports:
@@ -26,6 +26,6 @@ services:
     environment:
       NGINX_ENVSUBST_OUTPUT_DIR: "/etc/nginx/"
       NGINX_BACKEND: "app"
-    depends_on: ['app']
+    depends_on: ["app"]
 volumes:
   data:

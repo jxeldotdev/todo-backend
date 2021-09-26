@@ -19,7 +19,7 @@ config:
 db:
   user: "app"
   password: "changeme"
-  
+
 
 imagePullSecrets: []
 nameOverride: ""

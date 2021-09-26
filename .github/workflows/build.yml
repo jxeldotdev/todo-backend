@@ -26,7 +26,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
+
       - name: Calculate tags
         if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         run: |
@@ -34,9 +34,9 @@ jobs:
 
       - name: Create docker tag variable
         id: tags
-        run: | 
+        run: |
           echo "::set-output name=branch_name::$(git branch --no-color --show-current)-$(git rev-parse --short HEAD)"
-      
+
       - name: Build and push
         uses: docker/build-push-action@v2
         if: ${{ startsWith(github.ref, 'refs/heads/') }}
@@ -56,11 +56,11 @@ jobs:
           context: .
           push: true
           tags: |
-            joelfreeman/todo-backend:latest, 
+            joelfreeman/todo-backend:latest,
             joelfreeman/todo-backend:${{ env.GIT_TAG_NAME }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
-        
+
         # Temp fix
         # https://github.com/docker/build-push-action/issues/252
         # https://github.com/moby/buildkit/issues/1896
@@ -78,5 +78,3 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
-        
-  

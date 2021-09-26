@@ -1,7 +1,7 @@
-from app.database import engine
-from app import models
-
 import uuid
+
+from app import models
+from app.database import engine
 
 
 def recreate() -> None:
