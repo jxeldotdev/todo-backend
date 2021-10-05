@@ -1,15 +1,25 @@
 /* Environment and domain related variables */
-variable "frontend_domain_prefix" {
+// ci-and-infrastructure.dev.tinakori.dev
+// tinakori.dev
+variable "frontend_url" {
   type        = string
-  default     = "${var.branch_name}-${var.environment}.todo"
+  default     = "${var.branch_name}.${var.environment}."
   description = "description"
 }
 
-variable "backend_domain_prefix" {
-  type = string
-  default = "api.${var.branch_name}-${var.environment}.todo"
+
+variable "cf_zone_id" {
+  type        = string
+  description = "Cloudflare Zone ID"
 }
 
+
+// api.ci-and-infrastructure.dev.tinakori.dev
+// PROD: api.tinakori.dev
+variable "api_url" {
+  type    = string
+  default = "api.${var.branch_name}.${var.environment}."
+}
 variable "branch_name" {
   type        = string
   description = "Name of git branch"
@@ -20,6 +30,12 @@ variable "environment" {
   default     = "development"
   description = "Name of environment. Possible values: development, production"
 }
+
+variable "docker_image_tag" {
+  type        = string
+  description = "Tag for docker image used in helm release."
+}
+
 
 /* Database Variables */
 

@@ -1,0 +1,73 @@
+---
+
+hosts: 127.0.0.1
+
+tasks:
+  - name: Create a new database with name todo_app
+    community.postgresql.postgresql_db:
+      name: "todo_app"
+      template: template0
+      state: present
+      login_host: {{ rds_endpoint }}
+      login_user: {{ lookup('amazon_aws_secret', item + '.username') }}
+      login_password: {{ lookup('amazon_aws_secret', item + '.password') }}
+    loop: {{ secretsmanager_root_secret_name }}
+
+  - name: Create Application User in PostgreSQL Database
+    community.postgresql.postgresql_user:
+      name: todo
+      state: present
+      password: {{ lookup('amazon.aws.aws_secret' item.value + '.password') }}
+      login_host: {{ rds_endpoint }}
+      login_user: {{ lookup('amazon_aws_secret', item.key + '.username') }}
+      login_password: {{ lookup('amazon_aws_secret', item.key + '.password') }}
+    loop_dict:
+      - { {{ secretsmanager_root_secret_name }}: {{ secretsmanager_secret_name }} }
+
+  - name: GRANT ALL PRIVILEGES ON DATABASE todo_app to todo user
+    community.postgresql.postgresql_privs:
+      db: postgres
+      privs: ALL
+      type: database
+      obj: todo_app
+      role: {{ lookup('amazon.aws.aws_secret' item.value + '.username') }}
+      login_host: {{ rds_endpoint }}
+      login_user: {{ lookup('amazon_aws_secret', item.key + '.username') }}
+      login_password: {{ lookup('amazon_aws_secret', item.key + '.password') }}
+    loop_dict:
+      - { {{ secretsmanager_root_secret_name }}: {{ secretsmanager_secret_name }} }
+
+  - name: Install Helm Release
+    kubernetes.core.helm:
+      name: "todo-backend-{{ branch_name }}"
+      chart_ref: "../todo-backend/"
+      release_namespace: "todo-backend-{{ branch_name }}"
+      values:
+        image:
+          tag: {{ image_tag_name }}
+        db:
+          user: {{ lookup('amazon.aws.aws_secret' item + '.username') }}
+          password: {{ lookup('amazon.aws.aws_secret' item + '.password') }}
+        config:
+          postgresDB: todo_app
+          postgresHost: {{ rds_endpoint }}
+          corsAllowedOrigins: [ {{ frontend_url }}, "www.{{ frontend_url }}" ]
+        ingress:
+          enabled: true
+          annotations:
+            className: kubernetes.io/ingress.class: nginx
+            cert-manager.io/cluster-issuer: letsencrypt-prod
+          tls:
+          - hosts:
+            - {{ backend_api_url }}
+            secretName: {{ tls_secret_name }}
+          hosts:
+            - host: {{ backend_api_url }}
+              paths:
+                - path: /
+                  pathType: prefix
+                  service:
+                    name: "todo-backend-{{ branch_name }}"
+                    port:
+                      number: 80
+    loop: {{ secretsmanager_aws_secret }}

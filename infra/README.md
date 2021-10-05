@@ -21,18 +21,15 @@ Diagram feedback to implement:
 * How do i know what version of postgres to run, e.g matching it in production? Is it static?
 * Figure out how to comment on the issue if there is an issue, or pull request etc...
     * If it is a PR, `GITHUB_REF` will contain
-* Maybe only run destroy on branch - it could check for a .destroy file ( which could contain the workspace name) and have manual actions to prevent accidental deletion.
+* Maybe only run destroy on branch - it could check for a .destroy file (which could contain the workspace name) and have manual actions to prevent accidental deletion.
 
 Destroy flow:
 1. Create .destroy file
-2. Enter the following json into the file
+2. Enter the branch name into the file, e.g
 ```
-{
-    "destroyInfo": {
-        "branchName": "CURRENT_BRANCH_CHANGEME",
-        "destroy": True
-    }
-}
+ci-and-infrastructure
 ```
 3. Commit file
 4. Push file
+5. Get PR approved
+6.
