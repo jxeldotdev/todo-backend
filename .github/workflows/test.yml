@@ -98,7 +98,6 @@ jobs:
           workflow: 14499421
           repo: jxeldotdev/todo-backend
           token: ${{ secrets.PERSONAL_TOKEN }}
-          inputs: '{ "environment": "${{ steps.calculate-values.outputs.environment }}", "image-tag": "${{ steps.calculate-values.outputs.branch_name }}" }'
 
       - name: Deploy to Production Environment
         if: ${{ github.ref == 'refs/heads/main' }}
