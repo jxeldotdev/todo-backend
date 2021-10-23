@@ -1,4 +1,4 @@
-name: Deploy AWS Resources
+name: Deploy Preview Application on AWS
 on:
   workflow_dispatch:
     inputs:
@@ -11,10 +11,10 @@ on:
 
 jobs:
 
-  deploy-to-dev:
+  create-infrastructure-terraform:
+    id: tf
     # dev-cluster-runner
     runs-on: dev-runners
-    if: ${{ github.event.input }}
     outputs:
       cf_dist_id: ${{ steps.get_ids.outputs.cf_dist_id }}
       s3_bucket_name: ${{ steps.get_ids.outputs.s3_bucket_name }}
@@ -101,23 +101,25 @@ jobs:
           echo "::set-output s3_bucket_name=$(terraform output s3_bucket_name | tr -d '"')"
           echo "::set-output var_file_arn=s3://${{ secrets.S3_VAR_BUCKET_NAME_DEV }}/tf_ansible_vars_${{ steps.get_env.outputs.branch }}_${{ steps.get_env.outputs.git_ref_short }}.yaml"
 
-      - name: Encrypt Exported Variables with SOPS
-        env:
-          SOPS_KMS_ARN: ${{ secrets.DEV_SOPS_KMS_ARN }}
-        run: |
-          sops -e -i infra/tf/tf_ansible_vars.yaml
-
       - name: Copy variables file to S3 Bucket
         run: |
           aws s3 cp infra/tf/tf_ansible_vars.yaml ${{ steps.get_ids.outputs.var_file_arn }}
 
   run-ansible-playbook-dev:
+    id: ansible
     runs-on: dev-runners
     needs:
-      - deploy-to-dev
+      - create-infrastructure-terraform
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
+          web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
 
       - name: Download Artifact
         run: |
@@ -140,62 +142,64 @@ jobs:
   trigger-frontend-deployment:
     runs-on: self-hosted
     if: ${{ github.ref != 'refs/heads/main }}
-    needs: deploy-to-dev
+    needs: create-infrastructure-terraform
+    outputs:
+      issueID: ${{ steps.get-id.outputs.issueID }}
+      frontendBranchName: ${{ steps.get-id.outputs.frontendBranchName }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Get Issue ID
+        id: get-id
+        run: |
+          echo "::set-output issueID=$(jq '.issueID' | tr -d '"')"
+          echo "::set-output frontendBranchName=$(jq '.frontendBranchName' | tr -d '"')"
+
     - name: Trigger frontend deployment job
-      id: trigger-frontend
+      id: trigger-frontend-job
       uses: aurelien-baudet/workflow-dispatch@v2
       if: ${{ github.ref != 'refs/heads/main }}
       with:
         workflow:
         repo: jxeldotdev/todo-backend
         token: ${{ secrets.PERSONAL_TOKEN }}
+        display-worflow-run-url: true
+        wait-for-completion: true
+        wait-for-completion-timeout: 2m
+        wait-for-completion-interval: 30s
+        ref: "refs/heads/${{ steps.get-id.outputs.frontendBranchName }}"
         inputs: '{ "bucket_name": "${{ jobs.deploy-to-dev.outputs.s3_bucket_name }} ", "cf_dist_id": "${{ needs.deploy-to-dev.outputs.cf_dist_id }}" }'
 
-      - name: Comment on PR
-        if: ${{ github.event_name == pull_request }}
-        uses: actions/github-script@v5
-        with:
-          script: |
+
+  comment-on-issue:
+    runs-on: dev-runners
+    if: ${{ always() }}
+    needs:
+      - create-infrastructure-terraform
+      - run-ansible-playbook-dev
+      - trigger-frontend-deployment
+    steps:
+    - name: Comment on PR
+      uses: actions/github-script@v5
+      with:
+        script: |
           const output = `
-            ## Terraform Deployment: ✅`
+            ## Job Statuses
+            Terraform Deployment: ${{ jobs.tf.status }}
+            Helm Installation: ${{ jobs.ansible.status }} `
+            Frontend Deployment: ${{ jobs.trigger-frontend-deployment.status }}
+
+            Application has been deployed successfully. See the following URLs:
 
             ## Application URLs:
-            Backend API URL: ${{ jobs.deploy-to-dev.outputs.backend_url }}
-            Frontend URL: ${{ jobs.deploy-to-dev.outputs.frontend_url }}
+            Backend API URL: ${{ jobs.create-infrastructure-terraform.outputs.backend_url }}
+            Frontend URL: ${{ jobs.create-infrastructure-terraform.outputs.frontend_url }}
 
-            Frontend Job URL: ${{ steps.trigger-frontend.outputs.workflow-url }}
+            Frontend Job URL: ${{ steps.trigger-frontend-job.outputs.workflow-url }}
 
-            github.rest.pulls.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '''
-              Terraform deployment: ✅ ❌
-              Helm installation: ✅ ❌
-
-              GitHub Actions - Frontend Job URL:
-              '''
-            })
-
-  deploy-to-prod:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Setup Terraform
-      - uses: hashicorp/setup-terraform@v1
-
-      - name: Install Helm
-        uses: azure/setup-helm@v1
-
-      - name: Assume AWS Role
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: ${{ secrets.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
-          web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
-
-      - name: get-caller-identity
-        run: |
-          aws sts get-caller-identity
+          github.rest.pulls.createComment({
+            issue_number: steps.get-id.outputs.issueID,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })

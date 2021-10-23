@@ -22,6 +22,7 @@ module "website" {
 
 /* AWS Secrets for RDS Instance */
 
+
 resource "random_password" "db_master_password" {
   length           = 32
   special          = true

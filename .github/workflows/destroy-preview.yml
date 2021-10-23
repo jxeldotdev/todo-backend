@@ -1,11 +1,10 @@
-name: Destroy development environment
+name: Deploy to Production Environment
 on:
   pull_request:
     types: [ closed ]
 
 jobs:
   destroy-environment:
-    # dev-cluster-runner
     runs-on: self-hosted
     steps:
       - name: Checkout repository
@@ -27,5 +26,3 @@ jobs:
       - name: get-caller-identity
         run: |
           aws sts get-caller-identity
-      - name: Calculate variables
-        run: |

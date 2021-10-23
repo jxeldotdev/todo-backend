@@ -77,9 +77,17 @@ jobs:
           if [ $(git branch) -ne "master" ]; then ENVIRONMENT_NAME="dev"; else ENVIRONMENT_NAME="prod"; fi
 
           echo "::set-output name=environment::echo $ENVIRONMENT_NAME"
-      - name: Invoke workflow without inputs
+      - name: Deploy to Preview Environment
+        if: ${{ github.ref != 'refs/heads/main }}
         uses: benc-uk/workflow-dispatch@v1
         with:
-          workflow: Deploy AWS Resources
+          workflow: Deploy Preview Application on AWS
           token: ${{ secrets.PERSONAL_TOKEN }}
           inputs: '{ "environment": "${{ steps.calculate-values.outputs.environment }}", "image-tag": ${{ steps.calculate-values.outputs.branch_name }} }'
+
+      - name: Deploy to Production Environment
+        if: ${{ github.ref == 'refs/heads/main }}
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Deploy to Production Environment
+          token: ${{ secrets.PERSONAL_TOKEN }}

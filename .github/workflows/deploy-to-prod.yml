@@ -1,18 +1,12 @@
-name: Deploy AWS Resources
+name: Deploy to Production Environment
 on:
   workflow_dispatch:
-    inputs:
-      image-tag:
-        description: "Docker image tag to deploy"
-        required: true
-
 
 jobs:
 
   deploy:
     # dev-cluster-runner
     runs-on: prod-runners
-    if: ${{ github.event.input }}
     outputs:
       cf_dist_id: ${{ steps.get_ids.outputs.cf_dist_id }}
       s3_bucket_name: ${{ steps.get_ids.outputs.s3_bucket_name }}
@@ -104,7 +98,7 @@ jobs:
           aws s3 cp infra/tf/tf_ansible_vars.yaml ${{ steps.get_ids.outputs.var_file_arn }}
 
   run-ansible-playbook:
-    runs-on: prod-unners
+    runs-on: prod-runners
     needs:
       - deploy
     steps:
@@ -152,26 +146,3 @@ jobs:
               Helm installation: ✅ ❌
               '''
             })
-
-  deploy-to-prod:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Setup Terraform
-      - uses: hashicorp/setup-terraform@v1
-
-      - name: Install Helm
-        uses: azure/setup-helm@v1
-
-      - name: Assume AWS Role
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: ${{ secrets.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
-          web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
-
-      - name: get-caller-identity
-        run: |
-          aws sts get-caller-identity
