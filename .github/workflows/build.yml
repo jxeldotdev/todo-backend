@@ -88,4 +88,3 @@ jobs:
           token: ${{ secrets.PERSONAL_TOKEN }}
           display-worflow-run-url: true
           ref: ${{ github.event.client_payload.sha }}
-          inputs: '{ "bucket_name": "${{ jobs.deploy-to-dev.outputs.s3_bucket_name }} ", "cf_dist_id": "${{ needs.deploy-to-dev.outputs.cf_dist_id }}" }'
