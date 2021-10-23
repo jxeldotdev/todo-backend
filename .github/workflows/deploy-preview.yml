@@ -1,13 +1,6 @@
 name: Deploy Preview Application on AWS
 on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: "Name of branch / environment to deploy to."
-        required: true
-      image-tag:
-        description: "Docker image tag to deploy"
-        required: true
+  - workflow_dispatch:
 
 jobs:
 
