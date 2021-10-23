@@ -65,11 +65,15 @@ jobs:
 
   trigger-deployment:
     runs-on: ubuntu-latest
+    if: ${{ always() }}
     needs:
       - test
       - scan-code-semgrep
       - lint
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Calculate environment and image tag
         id: calculate-values
         run: |

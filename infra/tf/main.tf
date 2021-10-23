@@ -11,9 +11,8 @@ module "todo_app" {
 }
 
 locals {
-  api_url = "api.${module.todo_app.frontend_url}"
+  api_url = "api.${var.frontend_url}"
 }
-
 
 # Export Terraform variable values to an Ansible var_file
 resource "local_file" "tf_ansible_vars_file_new" {
@@ -24,7 +23,7 @@ resource "local_file" "tf_ansible_vars_file_new" {
     secretsmanager_secret_name: ${module.todo_app.db_todo_user_secretsmanager_name}
     secretsmanager_root_secret_name: ${module.todo_app.db_root_user_secretsmanager_name}
     rds_endpoint: ${module.todo_app.rds_endpoint}
-    frontend_url: ${module.todo_app.frontend_url}
+    frontend_url: ${var.frontend_url}
     backend_api_url: ${local.api_url}
     rds_root_user: ${module.todo_app.rds_root_user}
     s3_bucket_name: ${module.todo_app.s3_bucket_name}

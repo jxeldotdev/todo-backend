@@ -10,11 +10,11 @@ A helm chart should be created for the application manifests.
 
 ## Infrastructure Diagram
 
-![Diagram](diagram.png)
+![Diagram](diagrams/diagram.png)
 
 ## CI/CD Pipeline Diagram (desired)
 
-![CID Diagram](backend-ci-pipeline-revision-1.png)
+![CID Diagram](diagrams/backend-ci-pipeline-revision-1.png)
 
 Diagram feedback to implement:
 * Remove the "Run Unit Tests"
