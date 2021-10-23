@@ -8,11 +8,6 @@ variable "environment_name" {
   description = "Environment name. Used in tags and resource names."
 }
 
-variable "api_url" {
-  type        = string
-  description = "Desired backend API URL"
-}
-
 variable "frontend_url" {
   type        = string
   description = "Vue Frontend URL"

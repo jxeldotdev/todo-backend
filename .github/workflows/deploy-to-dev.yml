@@ -1,0 +1,201 @@
+name: Deploy AWS Resources
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Name of branch / environment to deploy to."
+        required: true
+      image-tag:
+        description: "Docker image tag to deploy"
+        required: true
+
+jobs:
+
+  deploy-to-dev:
+    # dev-cluster-runner
+    runs-on: dev-runners
+    if: ${{ github.event.input }}
+    outputs:
+      cf_dist_id: ${{ steps.get_ids.outputs.cf_dist_id }}
+      s3_bucket_name: ${{ steps.get_ids.outputs.s3_bucket_name }}
+      var_file_url: ${{ steps.get_ids.var_file_arn }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+      - uses: hashicorp/setup-terraform@v1
+
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
+          web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+
+      - name: Set environment variables
+        id: get_env
+        run: |
+          BRANCH=$(echo ${GITHUB_REF#refs/heads/} | tr / -)
+
+          if [ $BRANCH != "main" ]; then
+            ENVIRONMMENT="dev"
+            FRONTEND_URL=${BRANCH}.${ENVIRONMENT}.tinakori.dev"
+          else
+            ENVIRONMENT="prod"
+            FRONTEND_URL="tinakori.dev"
+          fi
+
+          echo "::set-output branch=$BRANCH"
+          echo "::set-output image_tag=$(git branch --no-color --show-current)-$(git rev-parse --short HEAD)"
+          echo "::set-output git_ref_short=$(git rev-parse --short HEAD)"
+          echo "::set-output backend_url=api.${FRONTEND_URL}"
+          echo "::set-output frontend_url=$FRONTEND_URL"
+
+
+      - name: Setup Terraform workspace
+        id: terraform-setup
+        run: |
+          cd infra/tf
+          terraform init
+
+          WORKSPACE_EXISTS=false
+
+          if terraform workspace list | grep ${{ steps.get_env.outputs.branch }}; then
+            WORKSPACE_EXISTS=true
+          fi
+
+          if $WORKSPACE_EXISTS; then
+            terraform workspace select ${{ steps.get_env.outputs.branch }}
+          else
+            terraform workspace new ${{ steps.get_env.outputs.branch }}
+          fi
+
+      - name: Validate terraform configuration
+        id: terraform-validate
+        run: |
+          cd infra/tf
+          terraform fmt -check
+          terraform validate -no-color
+
+      - name: Terraform plan
+        run: |
+          cd infra/tf
+          terraform init
+          terraform plan -no-color
+
+      - name: Terraform apply
+        id: tf-apply
+
+        run: |
+          cd infra/tf
+          terraform apply -auto-approve
+
+      - name: Get Terraform Outputs
+        id: get_ids
+        run: |
+          echo "::set-output cf_dist_id=$(terraform output cf_dist_id | tr -d '"')"
+          echo "::set-output s3_bucket_name=$(terraform output s3_bucket_name | tr -d '"')"
+          echo "::set-output var_file_arn=s3://${{ secrets.S3_VAR_BUCKET_NAME_DEV }}/tf_ansible_vars_${{ steps.get_env.outputs.branch }}_${{ steps.get_env.outputs.git_ref_short }}.yaml"
+
+      - name: Encrypt Exported Variables with SOPS
+        env:
+          SOPS_KMS_ARN: ${{ secrets.DEV_SOPS_KMS_ARN }}
+        run: |
+          sops -e -i infra/tf/tf_ansible_vars.yaml
+
+      - name: Copy variables file to S3 Bucket
+        run: |
+          aws s3 cp infra/tf/tf_ansible_vars.yaml ${{ steps.get_ids.outputs.var_file_arn }}
+
+  run-ansible-playbook-dev:
+    runs-on: dev-runners
+    needs:
+      - deploy-to-dev
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Download Artifact
+        run: |
+          aws s3 cp ${{ jobs.deploy-to-dev.outputs.var_file_arn }} infra/tf/tf_ansible_vars.yaml
+
+      - name: Install Helm Release and Configure RDS Instance
+        id: ansible
+        run: |
+          if [ -e infra/tf/tf_ansible_vars.yaml ]; then
+            mv infra/tf/tf_ansible_vars.yaml infra/ansible/tf_ansible_vars.yaml
+          else
+            echo "Unable to find exported terraform outputs file at /infra/tf/tf_ansible_vars.yaml" 1>&2
+            exit 1
+          fi
+
+          cd /infra/ansible
+
+          ansible-playbook -i 127.0.0.1 install.yaml
+
+  trigger-frontend-deployment:
+    runs-on: self-hosted
+    if: ${{ github.ref != 'refs/heads/main }}
+    needs: deploy-to-dev
+    - name: Trigger frontend deployment job
+      id: trigger-frontend
+      uses: aurelien-baudet/workflow-dispatch@v2
+      if: ${{ github.ref != 'refs/heads/main }}
+      with:
+        workflow:
+        repo: jxeldotdev/todo-backend
+        token: ${{ secrets.PERSONAL_TOKEN }}
+        inputs: '{ "bucket_name": "${{ jobs.deploy-to-dev.outputs.s3_bucket_name }} ", "cf_dist_id": "${{ needs.deploy-to-dev.outputs.cf_dist_id }}" }'
+
+      - name: Comment on PR
+        if: ${{ github.event_name == pull_request }}
+        uses: actions/github-script@v5
+        with:
+          script: |
+          const output = `
+            ## Terraform Deployment: ✅`
+
+            ## Application URLs:
+            Backend API URL: ${{ jobs.deploy-to-dev.outputs.backend_url }}
+            Frontend URL: ${{ jobs.deploy-to-dev.outputs.frontend_url }}
+
+            Frontend Job URL: ${{ steps.trigger-frontend.outputs.workflow-url }}
+
+            github.rest.pulls.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '''
+              Terraform deployment: ✅ ❌
+              Helm installation: ✅ ❌
+
+              GitHub Actions - Frontend Job URL:
+              '''
+            })
+
+  deploy-to-prod:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+      - uses: hashicorp/setup-terraform@v1
+
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
+          web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+
+      - name: get-caller-identity
+        run: |
+          aws sts get-caller-identity

@@ -5,6 +5,8 @@ locals {
     app         = "todo"
     managed-by  = "Terraform"
   }
+
+  is_prod = var.environment == "production" ? true : false
 }
 
 
@@ -13,7 +15,7 @@ locals {
 module "website" {
   source            = "git@github.com:jxeldotdev/tf-s3-static-website.git"
   domains           = [var.frontend_url, "www.${var.frontend_url}"]
-  zone_id           = var.cf_zone_id
+  zone_id           = var.hosted_zone_id
   bucket_name       = "frontend-${var.branch_name}-${var.environment}"
   service_role_name = "frontend-${var.branch_name}-${var.environment}"
 }
@@ -40,11 +42,14 @@ resource "aws_secretsmanager_secret" "db_credentials_secret" {
 }
 
 resource "aws_secretsmanager_secret_version" "db_credentials_secret" {
-  for_each  = ["root-user", "todo-user"]
+  for_each  = {
+    root-user = random_password.db_master_password.result,
+    todo-user = random_password.db_credentials_secret.result
+  }
   secret_id = aws_secretsmanager_secret.db_credentials_secret[each.key].id
   secret_string = jsonencode({
-    username = each.value
-    password = random_password.db_master_password.result
+    username = each.key
+    password = each.value
   })
 }
 
@@ -97,24 +102,20 @@ module "db" {
   password = data.aws_secretsmanager_secret_version.db_credentials_secret.secret_string
   port     = 5432
 
-  multi_az               = var.is_multi_az
+  multi_az               = local.is_prod
   subnet_ids             = data.aws_subnet_ids.db.ids
   vpc_security_group_ids = data.aws_security_groups.database.ids
-  db_subnet_group_name   = var.db_subnet_group_name
+  db_subnet_group_name   = var.db_subnet_group
 
   maintenance_window              = "Mon:00:00-Mon:03:00"
   backup_window                   = "03:00-06:00"
   enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
 
   backup_retention_period               = var.backup_retention_period
-  skip_final_snapshot                   = true
-  deletion_protection                   = var.deletion_protection
-  performance_insights_enabled          = true
-  performance_insights_retention_period = 7
-  create_monitoring_role                = true
-  monitoring_interval                   = 60
-  monitoring_role_name                  = var.db_monitoring_role_name
-  monitoring_role_description           = "Description for monitoring role"
+  skip_final_snapshot                   = local.is_prod
+  deletion_protection                   = local.is_prod
+
+  // we will have a prometheus exporter for monitoring
 
   parameters = [
     {

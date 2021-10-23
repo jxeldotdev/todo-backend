@@ -8,18 +8,14 @@ variable "frontend_url" {
 }
 
 
-variable "cf_zone_id" {
+variable "hosted_zone_id" {
   type        = string
-  description = "Cloudflare Zone ID"
+  description = "Route53 Hosted Zone ID - Used by Frontend module"
 }
-
 
 // api.ci-and-infrastructure.dev.tinakori.dev
 // PROD: api.tinakori.dev
-variable "api_url" {
-  type    = string
-  default = "api.${var.branch_name}.${var.environment}."
-}
+
 variable "branch_name" {
   type        = string
   description = "Name of git branch"
@@ -29,13 +25,12 @@ variable "environment" {
   type        = string
   default     = "development"
   description = "Name of environment. Possible values: development, production"
-}
 
-variable "docker_image_tag" {
-  type        = string
-  description = "Tag for docker image used in helm release."
+  validation {
+    condition     = regex("development|production", var.environment)
+    error_message = "Environment must be development or production."
+  }
 }
-
 
 /* Database Variables */
 
@@ -47,7 +42,7 @@ variable "db_name" {
 
 variable "master_db_user" {
   type        = string
-  default     = "master"
+  default     = "rdsmaster"
   description = "Name of Master Database User"
 }
 
@@ -57,14 +52,13 @@ variable "db_instance_class" {
   description = "AWS RDS Instance Class for Database."
 }
 
-variable "db_monitoring_role_name" {
+variable "db_subnet_group" {
   type        = string
-  default     = ""
-  description = "description"
+  description = "Name of DB Subnet group to create RDS Instance in."
 }
 
 variable "backup_retention_period" {
-  type        = string
-  default     = "7"
-  description = "description"
+  type        = number
+  default     = 7
+  description = "Database backup retention period in days"
 }

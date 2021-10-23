@@ -1,0 +1,31 @@
+name: Destroy development environment
+on:
+  pull_request:
+    types: [ closed ]
+
+jobs:
+  destroy-environment:
+    # dev-cluster-runner
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+      - uses: hashicorp/setup-terraform@v1
+
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
+          web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+
+      - name: get-caller-identity
+        run: |
+          aws sts get-caller-identity
+      - name: Calculate variables
+        run: |
