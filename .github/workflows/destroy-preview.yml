@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.client_payload.sha }}
 
       - name: Setup Terraform
       - uses: hashicorp/setup-terraform@v1
@@ -23,6 +25,6 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
           web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
 
-      - name: get-caller-identity
+      - name: Uninstall Helm Release
         run: |
-          aws sts get-caller-identity
+

@@ -1,9 +1,6 @@
 name: Test, Lint and scan Application for vulnerabilities
 on:
-  workflow_run:
-    workflows: ["Build Docker Image and Run Tests"]
-    types:
-      - completed
+  - workflow_dispatch
 jobs:
   lint:
     runs-on: ubuntu-latest

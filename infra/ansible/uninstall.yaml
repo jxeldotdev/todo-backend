@@ -2,7 +2,7 @@
 
 hosts: 127.0.0.1
 tasks:
-  - name: Install Helm Release
+  - name: Uninstall Helm Release
     kubernetes.core.helm:
       name: "todo-backend-{{ branch_name }}"
       chart_ref: "../todo-backend/"

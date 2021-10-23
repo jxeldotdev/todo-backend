@@ -118,7 +118,6 @@ jobs:
         with:
           ref: ${{ github.event.client_payload.sha }}
 
-
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -177,7 +176,6 @@ jobs:
           wait-for-completion-interval: 30s
           ref: "refs/heads/${{ steps.get-id.outputs.frontendBranchName }}"
           inputs: '{ "bucket_name": "${{ jobs.deploy-to-dev.outputs.s3_bucket_name }} ", "cf_dist_id": "${{ needs.deploy-to-dev.outputs.cf_dist_id }}" }'
-
 
   comment-on-issue:
     runs-on: dev-runners

@@ -78,3 +78,14 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+
+      - name: Trigger frontend deployment job
+        id: trigger-frontend-job
+        uses: aurelien-baudet/workflow-dispatch@v2
+        with:
+          workflow: Test, Lint and scan Application for vulnerabilities
+          repo: jxeldotdev/todo-backend
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          display-worflow-run-url: true
+          ref: ${{ github.event.client_payload.sha }}
+          inputs: '{ "bucket_name": "${{ jobs.deploy-to-dev.outputs.s3_bucket_name }} ", "cf_dist_id": "${{ needs.deploy-to-dev.outputs.cf_dist_id }}" }'
