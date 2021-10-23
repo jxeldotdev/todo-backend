@@ -87,6 +87,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: bruh
+        run: |
+          echo ${{ github.event.pull_request.head.ref }}
+
       - name: Trigger frontend deployment job
         id: trigger-frontend-job
         uses: aurelien-baudet/workflow-dispatch@v2
@@ -95,3 +99,4 @@ jobs:
           repo: jxeldotdev/todo-backend
           token: ${{ secrets.PERSONAL_TOKEN }}
           display-workflow-run-url: true
+
