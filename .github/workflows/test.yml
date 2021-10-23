@@ -95,7 +95,7 @@ jobs:
         if: ${{ github.ref != 'refs/heads/main' }}
         uses: aurelien-baudet/workflow-dispatch@v2
         with:
-          workflow: Deploy Preview Application on AWS
+          workflow: 14499421
           repo: jxeldotdev/todo-backend
           token: ${{ secrets.PERSONAL_TOKEN }}
           inputs: '{ "environment": "${{ steps.calculate-values.outputs.environment }}", "image-tag": "${{ steps.calculate-values.outputs.branch_name }}" }'
