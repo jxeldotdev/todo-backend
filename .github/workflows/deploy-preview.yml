@@ -89,7 +89,6 @@ jobs:
 
       - name: Terraform apply
         id: tf-apply
-
         run: |
           cd infra/tf
           terraform apply -auto-approve
