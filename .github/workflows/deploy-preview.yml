@@ -1,6 +1,6 @@
 name: Deploy Preview Application on AWS
 on:
-  - workflow_dispatch:
+  - workflow_dispatch
 
 jobs:
 
