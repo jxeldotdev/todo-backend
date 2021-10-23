@@ -77,12 +77,12 @@ jobs:
       - test
       - scan-code-semgrep
       - lint
+      - scan-dependencies-safety
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.client_payload.sha }}
-
 
       - name: Calculate environment and image tag
         id: calculate-values
