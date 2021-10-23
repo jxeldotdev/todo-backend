@@ -67,7 +67,6 @@ jobs:
     needs:
       - test
       - scan-code-semgrep
-      - scan-dependencies-safety
       - lint
     steps:
       - name: Calculate environment and image tag
