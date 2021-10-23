@@ -11,6 +11,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.client_payload.sha }}
+
       - name: Install linter
         run: pip install flake8
       - name: Run linter
@@ -22,6 +25,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.client_payload.sha }}
+
       - name: Install safety
         run: pip install safety
       - name: Run safety (dependency scanner)
@@ -32,6 +38,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.client_payload.sha }}
 
       - name: Scan codebase with semgrep
         uses: returntocorp/semgrep-action@v1
@@ -46,6 +54,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.client_payload.sha }}
+
 
       - name: Copy env file
         run: cp .env.testing .env
@@ -73,6 +84,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.client_payload.sha }}
+
 
       - name: Calculate environment and image tag
         id: calculate-values
