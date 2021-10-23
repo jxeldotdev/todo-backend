@@ -185,27 +185,27 @@ jobs:
       - run-ansible-playbook-dev
       - trigger-frontend-deployment
     steps:
-    - name: Comment on PR
-      uses: actions/github-script@v5
-      with:
-        script: |
-          const output = `
-            ## Job Statuses
-            Terraform Deployment: ${{ jobs.tf.status }}
-            Helm Installation: ${{ jobs.ansible.status }} `
-            Frontend Deployment: ${{ jobs.trigger-frontend-deployment.status }}
+      - name: Comment on PR
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const output = `
+              ## Job Statuses
+              Terraform Deployment: ${{ jobs.tf.status }}
+              Helm Installation: ${{ jobs.ansible.status }} `
+              Frontend Deployment: ${{ jobs.trigger-frontend-deployment.status }}
 
-            Application has been deployed successfully. See the following URLs:
+              Application has been deployed successfully. See the following URLs:
 
-            ## Application URLs:
-            Backend API URL: ${{ jobs.create-infrastructure-terraform.outputs.backend_url }}
-            Frontend URL: ${{ jobs.create-infrastructure-terraform.outputs.frontend_url }}
+              ## Application URLs:
+              Backend API URL: ${{ jobs.create-infrastructure-terraform.outputs.backend_url }}
+              Frontend URL: ${{ jobs.create-infrastructure-terraform.outputs.frontend_url }}
 
-            Frontend Job URL: ${{ steps.trigger-frontend-job.outputs.workflow-url }}
+              Frontend Job URL: ${{ steps.trigger-frontend-job.outputs.workflow-url }}
 
-          github.rest.pulls.createComment({
-            issue_number: steps.get-id.outputs.issueID,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: output
-          })
+            github.rest.pulls.createComment({
+              issue_number: steps.get-id.outputs.issueID,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
