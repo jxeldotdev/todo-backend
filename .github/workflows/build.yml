@@ -79,8 +79,10 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
-  trigger-frontend-job:
+  trigger-test-job:
     runs-on: ubuntu-latest
+    needs:
+      - build-docker-image
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -92,5 +94,4 @@ jobs:
           workflow: 'Test, Lint and scan Application for vulnerabilities'
           repo: jxeldotdev/todo-backend
           token: ${{ secrets.PERSONAL_TOKEN }}
-          display-worflow-run-url: true
-          ref: ${{ github.event.client_payload.sha }}
+          display-workflow-run-url: true
