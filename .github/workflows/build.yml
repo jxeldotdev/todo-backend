@@ -83,7 +83,7 @@ jobs:
         id: trigger-frontend-job
         uses: aurelien-baudet/workflow-dispatch@v2
         with:
-          workflow: Test, Lint and scan Application for vulnerabilities
+          workflow: 'Test, Lint and scan Application for vulnerabilities'
           repo: jxeldotdev/todo-backend
           token: ${{ secrets.PERSONAL_TOKEN }}
           display-worflow-run-url: true
