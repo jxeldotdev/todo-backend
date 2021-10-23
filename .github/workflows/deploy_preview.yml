@@ -1,11 +1,9 @@
 name: Deploy Preview Application on AWS
 on:
   - workflow_dispatch
-
 jobs:
   create-infrastructure-terraform:
     id: tf
-    # dev-cluster-runner
     runs-on: dev-runners
     outputs:
       cf_dist_id: ${{ steps.get_ids.outputs.cf_dist_id }}
@@ -18,7 +16,7 @@ jobs:
           ref: ${{ github.event.client_payload.sha }}
 
       - name: Setup Terraform
-      - uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v1
 
       - name: Install Helm
         uses: azure/setup-helm@v1
@@ -153,8 +151,8 @@ jobs:
 
       - name: Trigger frontend deployment job
         id: trigger-frontend-job
-        uses: aurelien-baudet/workflow-dispatch@v2
         if: ${{ github.ref != 'refs/heads/main }}
+        uses: aurelien-baudet/workflow-dispatch@v2
         with:
           workflow:
           repo: jxeldotdev/todo-backend
