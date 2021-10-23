@@ -1,149 +1,149 @@
-name: Deploy to Production Environment
-on:
-  workflow_dispatch:
+# name: Deploy to Production Environment
+# on:
+#   workflow_dispatch:
 
-jobs:
+# jobs:
 
-  deploy:
-    # dev-cluster-runner
-    runs-on: prod-runners
-    outputs:
-      cf_dist_id: ${{ steps.get_ids.outputs.cf_dist_id }}
-      s3_bucket_name: ${{ steps.get_ids.outputs.s3_bucket_name }}
-      var_file_url: ${{ steps.get_ids.var_file_arn }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+#   deploy:
+#     # dev-cluster-runner
+#     runs-on: prod-runners
+#     outputs:
+#       cf_dist_id: ${{ steps.get_ids.outputs.cf_dist_id }}
+#       s3_bucket_name: ${{ steps.get_ids.outputs.s3_bucket_name }}
+#       var_file_url: ${{ steps.get_ids.var_file_arn }}
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
 
-      - name: Setup Terraform
-      - uses: hashicorp/setup-terraform@v1
+#       - name: Setup Terraform
+#       - uses: hashicorp/setup-terraform@v1
 
-      - name: Install Helm
-        uses: azure/setup-helm@v1
+#       - name: Install Helm
+#         uses: azure/setup-helm@v1
 
-      - name: Assume AWS Role
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: ${{ secrets.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
-          web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+#       - name: Assume AWS Role
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-region: ${{ secrets.AWS_REGION }}
+#           role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
+#           web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
 
-      - name: Set environment variables
-        id: get_env
-        run: |
-          BRANCH=$(echo ${GITHUB_REF#refs/heads/} | tr / -)
+#       - name: Set environment variables
+#         id: get_env
+#         run: |
+#           BRANCH=$(echo ${GITHUB_REF#refs/heads/} | tr / -)
 
-          if [ $BRANCH != "main" ]; then
-            ENVIRONMMENT="dev"
-            FRONTEND_URL=${BRANCH}.${ENVIRONMENT}.tinakori.dev"
-          else
-            ENVIRONMENT="prod"
-            FRONTEND_URL="tinakori.dev"
-          fi
+#           if [ $BRANCH != "main" ]; then
+#             ENVIRONMMENT="dev"
+#             FRONTEND_URL=${BRANCH}.${ENVIRONMENT}.tinakori.dev"
+#           else
+#             ENVIRONMENT="prod"
+#             FRONTEND_URL="tinakori.dev"
+#           fi
 
-          echo "::set-output branch=$BRANCH"
-          echo "::set-output image_tag=$(git branch --no-color --show-current)-$(git rev-parse --short HEAD)"
-          echo "::set-output git_ref_short=$(git rev-parse --short HEAD)"
-          echo "::set-output backend_url=api.${FRONTEND_URL}"
-          echo "::set-output frontend_url=$FRONTEND_URL"
+#           echo "::set-output branch=$BRANCH"
+#           echo "::set-output image_tag=$(git branch --no-color --show-current)-$(git rev-parse --short HEAD)"
+#           echo "::set-output git_ref_short=$(git rev-parse --short HEAD)"
+#           echo "::set-output backend_url=api.${FRONTEND_URL}"
+#           echo "::set-output frontend_url=$FRONTEND_URL"
 
 
-      - name: Setup Terraform workspace
-        id: terraform-setup
-        run: |
-          cd infra/tf
-          terraform init
+#       - name: Setup Terraform workspace
+#         id: terraform-setup
+#         run: |
+#           cd infra/tf
+#           terraform init
 
-          WORKSPACE_EXISTS=false
+#           WORKSPACE_EXISTS=false
 
-          if terraform workspace list | grep ${{ steps.get_env.outputs.branch }}; then
-            WORKSPACE_EXISTS=true
-          fi
+#           if terraform workspace list | grep ${{ steps.get_env.outputs.branch }}; then
+#             WORKSPACE_EXISTS=true
+#           fi
 
-          if $WORKSPACE_EXISTS; then
-            terraform workspace select ${{ steps.get_env.outputs.branch }}
-          else
-            terraform workspace new ${{ steps.get_env.outputs.branch }}
-          fi
+#           if $WORKSPACE_EXISTS; then
+#             terraform workspace select ${{ steps.get_env.outputs.branch }}
+#           else
+#             terraform workspace new ${{ steps.get_env.outputs.branch }}
+#           fi
 
-      - name: Validate terraform configuration
-        id: terraform-validate
-        run: |
-          cd infra/tf
-          terraform fmt -check
-          terraform validate -no-color
+#       - name: Validate terraform configuration
+#         id: terraform-validate
+#         run: |
+#           cd infra/tf
+#           terraform fmt -check
+#           terraform validate -no-color
 
-      - name: Terraform plan
-        run: |
-          cd infra/tf
-          terraform init
-          terraform plan -no-color
+#       - name: Terraform plan
+#         run: |
+#           cd infra/tf
+#           terraform init
+#           terraform plan -no-color
 
-      - name: Terraform apply
-        id: tf-apply
+#       - name: Terraform apply
+#         id: tf-apply
 
-        run: |
-          cd infra/tf
-          terraform apply -auto-approve
+#         run: |
+#           cd infra/tf
+#           terraform apply -auto-approve
 
-      - name: Get Terraform Outputs
-        id: get_ids
-        run: |
-          echo "::set-output cf_dist_id=$(terraform output cf_dist_id | tr -d '"')"
-          echo "::set-output s3_bucket_name=$(terraform output s3_bucket_name | tr -d '"')"
-          echo "::set-output var_file_arn=s3://${{ secrets.S3_VAR_BUCKET_NAME_PROD }}/tf_ansible_vars_${{ steps.get_env.outputs.branch }}_${{ steps.get_env.outputs.git_ref_short }}.yaml"
+#       - name: Get Terraform Outputs
+#         id: get_ids
+#         run: |
+#           echo "::set-output cf_dist_id=$(terraform output cf_dist_id | tr -d '"')"
+#           echo "::set-output s3_bucket_name=$(terraform output s3_bucket_name | tr -d '"')"
+#           echo "::set-output var_file_arn=s3://${{ secrets.S3_VAR_BUCKET_NAME_PROD }}/tf_ansible_vars_${{ steps.get_env.outputs.branch }}_${{ steps.get_env.outputs.git_ref_short }}.yaml"
 
-      - name: Copy variables file to S3 Bucket
-        run: |
-          aws s3 cp infra/tf/tf_ansible_vars.yaml ${{ steps.get_ids.outputs.var_file_arn }}
+#       - name: Copy variables file to S3 Bucket
+#         run: |
+#           aws s3 cp infra/tf/tf_ansible_vars.yaml ${{ steps.get_ids.outputs.var_file_arn }}
 
-  run-ansible-playbook:
-    runs-on: prod-runners
-    needs:
-      - deploy
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+#   run-ansible-playbook:
+#     runs-on: prod-runners
+#     needs:
+#       - deploy
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
 
-      - name: Download Artifact
-        run: |
-          aws s3 cp ${{ jobs.deploy.outputs.var_file_arn }} infra/tf/tf_ansible_vars.yaml
+#       - name: Download Artifact
+#         run: |
+#           aws s3 cp ${{ jobs.deploy.outputs.var_file_arn }} infra/tf/tf_ansible_vars.yaml
 
-      - name: Install Helm Release and Configure RDS Instance
-        id: ansible
-        run: |
-          if [ -e infra/tf/tf_ansible_vars.yaml ]; then
-            mv infra/tf/tf_ansible_vars.yaml infra/ansible/tf_ansible_vars.yaml
-          else
-            echo "Unable to find exported terraform outputs file at /infra/tf/tf_ansible_vars.yaml" 1>&2
-            exit 1
-          fi
+#       - name: Install Helm Release and Configure RDS Instance
+#         id: ansible
+#         run: |
+#           if [ -e infra/tf/tf_ansible_vars.yaml ]; then
+#             mv infra/tf/tf_ansible_vars.yaml infra/ansible/tf_ansible_vars.yaml
+#           else
+#             echo "Unable to find exported terraform outputs file at /infra/tf/tf_ansible_vars.yaml" 1>&2
+#             exit 1
+#           fi
 
-          cd /infra/ansible
+#           cd /infra/ansible
 
-          ansible-playbook -i 127.0.0.1 install.yaml
+#           ansible-playbook -i 127.0.0.1 install.yaml
 
-  comment-on-pr:
-    runs-on: prod-runners
-    needs: deploy-to-de
-    steps:
-      - name: Comment on PR
-        if: ${{ github.event_name == pull_request }}
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const output = `
-            Application deployed sucessfully to production environment.
-            ## Application URLs:
-            Backend API URL: ${{ jobs.deploy-to-dev.outputs.backend_url }}
-            Frontend URL: ${{ jobs.deploy-to-dev.outputs.frontend_url }}
+#   comment-on-pr:
+#     runs-on: prod-runners
+#     needs: deploy-to-de
+#     steps:
+#       - name: Comment on PR
+#         if: ${{ github.event_name == pull_request }}
+#         uses: actions/github-script@v5
+#         with:
+#           script: |
+#             const output = `
+#             Application deployed sucessfully to production environment.
+#             ## Application URLs:
+#             Backend API URL: ${{ jobs.deploy-to-dev.outputs.backend_url }}
+#             Frontend URL: ${{ jobs.deploy-to-dev.outputs.frontend_url }}
 
-            github.rest.pulls.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '''
-              Terraform deployment: ✅ ❌
-              Helm installation: ✅ ❌
-              '''
-            })
+#             github.rest.pulls.createComment({
+#               issue_number: context.issue.number,
+#               owner: context.repo.owner,
+#               repo: context.repo.repo,
+#               body: '''
+#               Terraform deployment: ✅ ❌
+#               Helm installation: ✅ ❌
+#               '''
+#             })

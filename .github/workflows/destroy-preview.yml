@@ -1,30 +1,30 @@
-name: Deploy to Production Environment
-on:
-  pull_request:
-    types: [ closed ]
+# name: Deploy to Production Environment
+# on:
+#   pull_request:
+#     types: [ closed ]
 
-jobs:
-  destroy-environment:
-    runs-on: self-hosted
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.client_payload.sha }}
+# jobs:
+#   destroy-environment:
+#     runs-on: self-hosted
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
+#         with:
+#           ref: ${{ github.event.client_payload.sha }}
 
-      - name: Setup Terraform
-      - uses: hashicorp/setup-terraform@v1
+#       - name: Setup Terraform
+#       - uses: hashicorp/setup-terraform@v1
 
-      - name: Install Helm
-        uses: azure/setup-helm@v1
+#       - name: Install Helm
+#         uses: azure/setup-helm@v1
 
-      - name: Assume AWS Role
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: ${{ secrets.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
-          web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+#       - name: Assume AWS Role
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-region: ${{ secrets.AWS_REGION }}
+#           role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
+#           web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
 
-      - name: Uninstall Helm Release
-        run: |
+#       - name: Uninstall Helm Release
+#         run: |
 
