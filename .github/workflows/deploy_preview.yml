@@ -129,9 +129,7 @@ jobs:
             echo "Unable to find exported terraform outputs file at /infra/tf/tf_ansible_vars.yaml" 1>&2
             exit 1
           fi
-
           cd /infra/ansible
-
           ansible-playbook -i 127.0.0.1 install.yaml
 
   trigger-frontend-deployment:
@@ -182,7 +180,7 @@ jobs:
           script: |
             const output = `
               ## Job Statuses
-              Terraform Deployment: ${{ jobs.tf.status }}
+              Terraform Deployment: ${{ jobs.tf.status }} `
               Helm Installation: ${{ jobs.ansible.status }} `
               Frontend Deployment: ${{ jobs.trigger-frontend-deployment.status }}
 

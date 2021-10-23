@@ -126,12 +126,13 @@ jobs:
   comment-on-pr:
     runs-on: prod-runners
     needs: deploy-to-de
+    steps:
       - name: Comment on PR
         if: ${{ github.event_name == pull_request }}
         uses: actions/github-script@v5
         with:
           script: |
-          const output = `
+            const output = `
             Application deployed sucessfully to production environment.
             ## Application URLs:
             Backend API URL: ${{ jobs.deploy-to-dev.outputs.backend_url }}
