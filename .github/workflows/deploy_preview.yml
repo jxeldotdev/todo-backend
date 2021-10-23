@@ -1,6 +1,6 @@
 name: Deploy Preview Application on AWS
 on:
-  - workflow_dispatch
+  workflow_dispatch:
 jobs:
   create-infrastructure-terraform:
     id: tf
@@ -47,6 +47,11 @@ jobs:
           echo "::set-output backend_url=api.${FRONTEND_URL}"
           echo "::set-output frontend_url=$FRONTEND_URL"
 
+          export TF_VAR_FRONTEND_URL=$FRONTEND_URL
+          export TF_VAR_ENVIRONMENT_NAME=$BRANCH
+          export TF_VAR_DOCKER_IMAGE_TAG=$(git branch --no-color --show-current)-$(git rev-parse --short HEAD)
+          export TF_VAR_BRANCH_NAME=$BRANCH
+
 
       - name: Setup Terraform workspace
         id: terraform-setup
@@ -65,6 +70,13 @@ jobs:
           else
             terraform workspace new ${{ steps.get_env.outputs.branch }}
           fi
+      - name: Template tfstate
+        env:
+          TFSTATE_BUCKET: ${{ secrets.TFSTATE_BUCKET }}
+          TFSTATE_TABLE: ${{ secrets.TFSTATE_TABLE }}
+        run: |
+          cd infra/tf
+          cat provider.tpl | envsubst > provider.tf
 
       - name: Validate terraform configuration
         id: terraform-validate
@@ -97,7 +109,6 @@ jobs:
           aws s3 cp infra/tf/tf_ansible_vars.yaml ${{ steps.get_ids.outputs.var_file_arn }}
 
   run-ansible-playbook-dev:
-    id: ansible
     runs-on: dev-runners
     needs:
       - create-infrastructure-terraform

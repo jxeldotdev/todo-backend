@@ -2,8 +2,8 @@ provider "aws" {
   region = "ap-southeast-2"
   default_tags {
     tags = {
-      Environment = "${ENVIRONMENT}"
-      Account     = "${ENVIRONMENT}"
+      Environment = "${TF_VAR_ENVIRONMENT_NAME}"
+      Account     = "${TF_VAR_ENVIRONMENT_NAME}"
       Application = "Todo-App"
       Managed-By  = "Terraform"
       Owner       = "Ops"
