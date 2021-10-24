@@ -77,9 +77,9 @@ jobs:
           TFSTATE_TABLE: ${{ secrets.TFSTATE_TABLE_DEV }}
         run: |
           cd infra/tf
-          sed -i "s/TFSTATE_TABLE/$TFSTATE_TABLE_DEV"
-          sed -i "s/TFSTATE_BUCKET/$TFSTATE_BUCKET_DEV"
-          sed -i "s/TF_VAR_ENVIRONMENT_NAME/$TF_VAR_ENVINRONMENT_NAME"
+          sed -i "s/TFSTATE_TABLE/$TFSTATE_TABLE_DEV/g"
+          sed -i "s/TFSTATE_BUCKET/$TFSTATE_BUCKET_DEV/g"
+          sed -i "s/TF_VAR_ENVIRONMENT_NAME/$TF_VAR_ENVINRONMENT_NAME/g"
 
       - name: Validate terraform configuration
         id: terraform-validate
