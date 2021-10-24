@@ -1,10 +1,12 @@
 ---
 
 hosts: 127.0.0.1
-
+variables:
+  tls_secret_name: todo-backend-ingress
 tasks:
   - name: Include variables
     ansible.builtin.include_vars: file=tf_ansible_vars.yaml
+
   - name: Install PostgreSQL Release
     kubernetes.core.helm:
       name: "postgresql-{{ branch_name }}"
@@ -25,8 +27,8 @@ tasks:
       name: "todo_app"
       template: template0
       state: present
-      login_host: {{ rds_endpoint }}
-      login_user: {{ lookup('amazon_aws_secret', item + '.username') }}
+      login_host: "postgresql-{{ branch_name }}.todo-backend-{{ branch_name }}.svc.cluster.local"
+      login_user: postgres
       login_password: {{ lookup('amazon_aws_secret', item + '.password') }}
     loop: {{ secretsmanager_root_secret_name }}
 
@@ -35,7 +37,7 @@ tasks:
       name: todo
       state: present
       password: {{ lookup('amazon.aws.aws_secret' item.value + '.password') }}
-      login_host: {{ rds_endpoint }}
+      login_host: "postgresql-{{ branch_name }}.todo-backend-{{ branch_name }}.svc.cluster.local"
       login_user: {{ lookup('amazon_aws_secret', item.key + '.username') }}
       login_password: {{ lookup('amazon_aws_secret', item.key + '.password') }}
     loop_dict:
@@ -48,7 +50,7 @@ tasks:
       type: database
       obj: todo_app
       role: {{ lookup('amazon.aws.aws_secret' item.value + '.username') }}
-      login_host: {{ rds_endpoint }}
+      login_host: "postgresql-{{ branch_name }}.todo-backend-{{ branch_name }}.svc.cluster.local"
       login_user: {{ lookup('amazon_aws_secret', item.key + '.username') }}
       login_password: {{ lookup('amazon_aws_secret', item.key + '.password') }}
     loop_dict:
@@ -69,7 +71,7 @@ tasks:
           password: {{ lookup('amazon.aws.aws_secret' item + '.password') }}
         config:
           postgresDB: todo_app
-          postgresHost: {{ rds_endpoint }}
+          postgresHost: "postgresql-{{ branch_name }}.todo-backend-{{ branch_name }}.svc.cluster.local"
           corsAllowedOrigins: [ {{ frontend_url }}, "www.{{ frontend_url }}" ]
         ingress:
           enabled: true

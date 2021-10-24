@@ -143,7 +143,7 @@ jobs:
 
   trigger-frontend-deployment:
     runs-on: self-hosted
-    if: ${{ github.ref != 'refs/heads/main }}
+    if: ${{ github.ref != 'refs/heads/main' }}
     needs: create-infrastructure-terraform
     outputs:
       issueID: ${{ steps.get-id.outputs.issueID }}
@@ -162,7 +162,7 @@ jobs:
 
       - name: Trigger frontend deployment job
         id: trigger-frontend-job
-        if: ${{ github.ref != 'refs/heads/main }}
+        if: ${{ github.ref != 'refs/heads/main' }}
         uses: aurelien-baudet/workflow-dispatch@v2
         with:
           workflow:
