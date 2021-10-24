@@ -15,7 +15,7 @@ locals {
 /* Static Website / Frontend */
 
 module "website" {
-  source            = "github.com/jxeldotdev/tf-s3-static-website.git"
+  source            = "github.com/jxeldotdev/tf-s3-static-website"
   domains           = [var.frontend_url, "www.${var.frontend_url}"]
   zone_id           = var.hosted_zone_id
   bucket_name       = "frontend-${var.branch_name}-${var.environment}"
