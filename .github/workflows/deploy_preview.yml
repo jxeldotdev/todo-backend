@@ -33,12 +33,7 @@ jobs:
           role-duration-seconds: 900
 
 
-      - na  - name: 'Upload Artifact'
-    uses: actions/upload-artifact@v2
-    with:
-      name: my-artifact
-      path: my_file.txt
-      retention-days: 5me: Set environment variables
+      - name: Set environment variables
         id: get_env
         run: |
           BRANCH=$(git branch --no-color --show-current)
