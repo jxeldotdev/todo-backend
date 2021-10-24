@@ -33,7 +33,7 @@ jobs:
       - name: Set environment variables
         id: get_env
         run: |
-          BRANCH=$(echo ${GITHUB_REF#refs/heads/} | tr / -)
+          BRANCH=$(git branch --no-color --show-current)
 
           if [ $BRANCH != "main" ]; then
             ENVIRONMMENT="dev"
