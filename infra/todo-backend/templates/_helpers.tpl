@@ -48,6 +48,9 @@ Selector labels
 {{- define "todo-backend.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "todo-backend.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/part-of: "todo-backend"
+app.kubernetes.io/commit: {{ .Values.commit }}
+app.kubernetes.io/branch: {{ .Values.branch }}
 
 {{- end }}
 

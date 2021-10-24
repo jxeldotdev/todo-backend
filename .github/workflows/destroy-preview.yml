@@ -28,3 +28,33 @@
 #       - name: Uninstall Helm Release
 #         run: |
 
+  # run-ansible-playbook-dev:
+  #   runs-on: dev-runners
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
+  #       with:
+  #         ref: ${{ github.event.client_payload.sha }}
+
+  #     - name: Assume AWS Role
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-region: ${{ secrets.AWS_REGION }}
+  #         role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
+  #         web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+
+  #     - name: Download Artifact
+  #       run: |
+  #         aws s3 cp ${{ jobs.create-infrastructure-terraform.outputs.var_file_arn }} infra/tf/tf_ansible_vars.yaml
+
+  #     - name: Install Helm Release and Configure RDS Instance
+  #       id: ansible
+  #       run: |
+  #         if [ -e infra/tf/tf_ansible_vars.yaml ]; then
+  #           mv infra/tf/tf_ansible_vars.yaml infra/ansible/tf_ansible_vars.yaml
+  #         else
+  #           echo "Unable to find exported terraform outputs file at /infra/tf/tf_ansible_vars.yaml" 1>&2
+  #           exit 1
+  #         fi
+  #         cd /infra/ansible
+  #         ansible-playbook -i 127.0.0.1 install.yaml
