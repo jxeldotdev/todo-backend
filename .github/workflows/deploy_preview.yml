@@ -21,6 +21,10 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v1
 
+      - name: show identity
+        run: |
+          aws sts get-caller-identity
+
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -29,6 +33,7 @@ jobs:
           web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
           role-duration-seconds: 900
           role-skip-session-tagging: true
+
 
       - name: Set environment variables
         id: get_env
