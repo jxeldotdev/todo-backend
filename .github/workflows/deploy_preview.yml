@@ -4,7 +4,6 @@ on:
 
 jobs:
   create-infrastructure-terraform:
-    id: tf
     runs-on: dev-runners
     outputs:
       cf_dist_id: ${{ steps.get_ids.outputs.cf_dist_id }}
@@ -190,7 +189,7 @@ jobs:
           script: |
             const output = `
             ## Job Statuses
-            Terraform Deployment: ${{ jobs.tf.status }}
+            Terraform Deployment: ${{ jobs.create-infrastructure-terraform.status }}
             Helm Installation: ${{ jobs.ansible.status }}
             Frontend Deployment: ${{ jobs.trigger-frontend-deployment.status }}
 
