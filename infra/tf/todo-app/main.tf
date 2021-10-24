@@ -7,8 +7,6 @@ locals {
   }
 
   is_prod = var.environment == "production" ? true : false
-
-  frontend_url
 }
 
 
