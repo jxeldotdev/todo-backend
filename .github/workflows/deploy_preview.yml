@@ -36,7 +36,7 @@ jobs:
       - name: Set environment variables
         id: get_env
         run: |
-          BRANCH=$(git branch --no-color --show-current)
+          export BRANCH=$(git branch --no-color --show-current)
 
           if [ $BRANCH != "main" ]; then
             ENVIRONMMENT="dev"
@@ -46,7 +46,7 @@ jobs:
             FRONTEND_URL="tinakori.dev"
           fi
 
-          echo "::set-output branch=$BRANCH"
+          echo "::set-output branch=$(git branch --no-color --show-current)"
           echo "::set-output image_tag=$(git branch --no-color --show-current)-$(git rev-parse --short HEAD)"
           echo "::set-output git_ref_short=$(git rev-parse --short HEAD)"
           echo "::set-output backend_url=api.${FRONTEND_URL}"
@@ -67,10 +67,6 @@ jobs:
           WORKSPACE_EXISTS=false
 
           if terraform workspace list | grep ${{ steps.get_env.outputs.branch }}; then
-            WORKSPACE_EXISTS=true
-          fi
-
-          if $WORKSPACE_EXISTS; then
             terraform workspace select ${{ steps.get_env.outputs.branch }}
           else
             terraform workspace new ${{ steps.get_env.outputs.branch }}
