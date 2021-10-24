@@ -198,8 +198,8 @@ jobs:
             Application has been deployed successfully. See the following URLs:
 
             ## Application URLs:
-            Backend API URL: ${{ jobs.create-infrastructure-terraform.outputs.backend_url }}
-            Frontend URL: ${{ jobs.create-infrastructure-terraform.outputs.frontend_url }}`;
+            Backend API URL: ${{ needs.create-infrastructure-terraform.outputs.backend_url }}
+            Frontend URL: ${{ needs.create-infrastructure-terraform.outputs.frontend_url }}`;
 
 
             github.rest.pulls.createComment({
