@@ -1,6 +1,7 @@
 name: Deploy Preview Application on AWS
 on:
   workflow_dispatch:
+
 jobs:
   create-infrastructure-terraform:
     id: tf
@@ -72,8 +73,8 @@ jobs:
           fi
       - name: Template tfstate
         env:
-          TFSTATE_BUCKET: ${{ secrets.TFSTATE_BUCKET }}
-          TFSTATE_TABLE: ${{ secrets.TFSTATE_TABLE }}
+          TFSTATE_BUCKET: ${{ secrets.TFSTATE_BUCKET_DEV }}
+          TFSTATE_TABLE: ${{ secrets.TFSTATE_TABLE_DEV }}
         run: |
           cd infra/tf
           cat provider.tpl | envsubst > provider.tf
@@ -127,7 +128,7 @@ jobs:
 
       - name: Download Artifact
         run: |
-          aws s3 cp ${{ jobs.deploy-to-dev.outputs.var_file_arn }} infra/tf/tf_ansible_vars.yaml
+          aws s3 cp ${{ jobs.create-infrastructure-terraform.outputs.var_file_arn }} infra/tf/tf_ansible_vars.yaml
 
       - name: Install Helm Release and Configure RDS Instance
         id: ansible
@@ -188,18 +189,19 @@ jobs:
         with:
           script: |
             const output = `
-              ## Job Statuses
-              Terraform Deployment: ${{ jobs.tf.status }} `
-              Helm Installation: ${{ jobs.ansible.status }} `
-              Frontend Deployment: ${{ jobs.trigger-frontend-deployment.status }}
+            ## Job Statuses
+            Terraform Deployment: ${{ jobs.tf.status }}
+            Helm Installation: ${{ jobs.ansible.status }}
+            Frontend Deployment: ${{ jobs.trigger-frontend-deployment.status }}
 
-              Application has been deployed successfully. See the following URLs:
+            Frontend Job URL: ${{ steps.trigger-frontend-job.outputs.workflow-url }}
 
-              ## Application URLs:
-              Backend API URL: ${{ jobs.create-infrastructure-terraform.outputs.backend_url }}
-              Frontend URL: ${{ jobs.create-infrastructure-terraform.outputs.frontend_url }}
+            Application has been deployed successfully. See the following URLs:
 
-              Frontend Job URL: ${{ steps.trigger-frontend-job.outputs.workflow-url }}
+            ## Application URLs:
+            Backend API URL: ${{ jobs.create-infrastructure-terraform.outputs.backend_url }}
+            Frontend URL: ${{ jobs.create-infrastructure-terraform.outputs.frontend_url }}`;
+
 
             github.rest.pulls.createComment({
               issue_number: steps.get-id.outputs.issueID,
