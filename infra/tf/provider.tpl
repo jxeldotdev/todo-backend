@@ -2,8 +2,8 @@ provider "aws" {
   region = "ap-southeast-2"
   default_tags {
     tags = {
-      Environment = "${TF_VAR_ENVIRONMENT_NAME}"
-      Account     = "${TF_VAR_ENVIRONMENT_NAME}"
+      Environment = "TF_VAR_ENVIRONMENT_NAME"
+      Account     = "TF_VAR_ENVIRONMENT_NAME"
       Application = "Todo-App"
       Managed-By  = "Terraform"
       Owner       = "Ops"
@@ -22,9 +22,9 @@ terraform {
     }
   }
   backend "s3" {
-    bucket         = "${TFSTATE_BUCKET}"
+    bucket         = "TFSTATE_BUCKET"
     key            = "terraform.tfstate"
     region         = "ap-southeast-2"
-    dynamodb_table = "${TFSTATE_TABLE}"
+    dynamodb_table = "TFSTATE_TABLE"
   }
 }
