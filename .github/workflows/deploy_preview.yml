@@ -21,18 +21,13 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v1
 
-      - name: show identity
-        run: |
-          aws sts get-caller-identity
-
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: ${{ secrets.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
+          role-to-assume: GithubActionsTerraform
           web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
           role-duration-seconds: 900
-          role-skip-session-tagging: true
 
 
       - name: Set environment variables
