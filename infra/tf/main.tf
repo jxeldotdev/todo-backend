@@ -22,10 +22,8 @@ resource "local_file" "tf_ansible_vars_file_new" {
 
     secretsmanager_secret_name: ${module.todo_app.db_todo_user_secretsmanager_name}
     secretsmanager_root_secret_name: ${module.todo_app.db_root_user_secretsmanager_name}
-    rds_endpoint: ${module.todo_app.rds_endpoint}
     frontend_url: ${var.frontend_url}
     backend_api_url: ${local.api_url}
-    rds_root_user: ${module.todo_app.rds_root_user}
     s3_bucket_name: ${module.todo_app.s3_bucket_name}
     cloudfront_dist_id: ${module.todo_app.cloudfront_dist_id}
     DOC
