@@ -3,8 +3,6 @@
 // tinakori.dev
 variable "frontend_url" {
   type        = string
-  default     = "${var.branch_name}.${var.environment}."
-  description = "description"
 }
 
 
