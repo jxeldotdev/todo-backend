@@ -120,6 +120,7 @@ jobs:
         with:
           ref: ${{ github.event.client_payload.sha }}
 
+
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -179,7 +180,7 @@ jobs:
           inputs: '{ "bucket_name": "${{ needs.create-infrastructure-terraform.outputs.s3_bucket_name }} ", "cf_dist_id": "${{ needs.create-infrastructure-terraform.outputs.cf_dist_id }}" }'
 
   comment-on-issue:
-    runs-on: dev-runners
+    runs-on: self-hosted
     if: ${{ always() }}
     needs:
       - create-infrastructure-terraform
