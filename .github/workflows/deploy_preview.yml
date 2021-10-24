@@ -66,10 +66,10 @@ jobs:
 
           WORKSPACE_EXISTS=false
 
-          if terraform workspace list | grep ${{ steps.get_env.outputs.branch }}; then
-            terraform workspace select ${{ steps.get_env.outputs.branch }}
+          if terraform workspace list | grep $(git branch --no-color --show-current); then
+            terraform workspace select $(git branch --no-color --show-current)
           else
-            terraform workspace new ${{ steps.get_env.outputs.branch }}
+            terraform workspace new $(git branch --no-color --show-current)
           fi
       - name: Template tfstate
         env:
