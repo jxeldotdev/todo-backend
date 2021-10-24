@@ -20,7 +20,10 @@ jobs:
 
       - name: Install Helm
         uses: azure/setup-helm@v1
-
+      # required?
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v1
         with:
