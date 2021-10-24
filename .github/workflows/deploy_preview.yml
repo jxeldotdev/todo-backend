@@ -37,7 +37,7 @@ jobs:
 
           if [ $BRANCH != "main" ]; then
             ENVIRONMMENT="dev"
-            FRONTEND_URL=${BRANCH}.${ENVIRONMENT}.tinakori.dev"
+            FRONTEND_URL="${BRANCH}.${ENVIRONMENT}.tinakori.dev"
           else
             ENVIRONMENT="prod"
             FRONTEND_URL="tinakori.dev"
