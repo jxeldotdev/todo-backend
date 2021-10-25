@@ -187,7 +187,7 @@ jobs:
             Frontend URL: ${{ needs.create-infrastructure-terraform.outputs.frontend_url }}`;
 
 
-            github.rest.pulls.createComment({
+            github.rest.issues.createComment({
               issue_number: ${{ needs.get-ci-config.outputs.issueID }},
               owner: context.repo.owner,
               repo: context.repo.repo,
