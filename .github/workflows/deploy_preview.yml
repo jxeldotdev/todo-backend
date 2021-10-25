@@ -206,7 +206,6 @@ jobs:
     needs:
       - create-infrastructure-terraform
       - run-ansible-playbook-dev
-      - trigger-frontend-deployment
       - get-ci-config
     steps:
       - name: Comment on PR
