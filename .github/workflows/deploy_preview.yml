@@ -46,11 +46,11 @@ jobs:
             FRONTEND_URL="tinakori.dev"
           fi
 
-          echo "::set-output branch=$(git branch --no-color --show-current)"
-          echo "::set-output image_tag=$(git branch --no-color --show-current)-$(git rev-parse --short HEAD)"
-          echo "::set-output git_ref_short=$(git rev-parse --short HEAD)"
-          echo "::set-output backend_url=api.${FRONTEND_URL}"
-          echo "::set-output frontend_url=$FRONTEND_URL"
+          echo "::set-output name=branch::$(git branch --no-color --show-current)"
+          echo "::set-output name=image_tag::$(git branch --no-color --show-current)-$(git rev-parse --short HEAD)"
+          echo "::set-output name=git_ref_short::$(git rev-parse --short HEAD)"
+          echo "::set-output name=backend_url::api.${FRONTEND_URL}"
+          echo "::set-output name=frontend_url::$FRONTEND_URL"
 
           export TF_VAR_FRONTEND_URL=$FRONTEND_URL
           export TF_VAR_ENVIRONMENT_NAME=$BRANCH
@@ -103,9 +103,9 @@ jobs:
       - name: Get Terraform Outputs
         id: get_ids
         run: |
-          echo "::set-output cf_dist_id=$(terraform output cf_dist_id | tr -d '"')"
-          echo "::set-output s3_bucket_name=$(terraform output s3_bucket_name | tr -d '"')"
-          echo "::set-output var_file_arn=s3://${{ secrets.S3_VAR_BUCKET_NAME_DEV }}/tf_ansible_vars_${{ steps.get_env.outputs.branch }}_${{ steps.get_env.outputs.git_ref_short }}.yaml"
+          echo "::set-output name=cf_dist_id::$(terraform output cf_dist_id | tr -d '"')"
+          echo "::set-output name=s3_bucket_name::$(terraform output s3_bucket_name | tr -d '"')"
+          echo "::set-output name=var_file_arn::s3://${{ secrets.S3_VAR_BUCKET_NAME_DEV }}/tf_ansible_vars_${{ steps.get_env.outputs.branch }}_${{ steps.get_env.outputs.git_ref_short }}.yaml"
 
       - name: Copy variables file to S3 Bucket
         run: |
@@ -160,8 +160,8 @@ jobs:
       - name: Get Issue ID
         id: get-id
         run: |
-          echo "::set-output issueID=$(jq '.issueID' ciconfig.json | tr -d '"')"
-          echo "::set-output frontendBranchName=$(jq '.frontendBranchName' ciconfig.json | tr -d '"')"
+          echo "::set-output name=issueID::$(jq '.issueID' ciconfig.json | tr -d '"')"
+          echo "::set-output name=frontendBranchName::$(jq '.frontendBranchName' ciconfig.json | tr -d '"')"
 
   comment-on-issue:
     runs-on: self-hosted
