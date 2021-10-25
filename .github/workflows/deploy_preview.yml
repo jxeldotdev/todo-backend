@@ -77,9 +77,9 @@ jobs:
           TFSTATE_TABLE: ${{ secrets.TFSTATE_TABLE_DEV }}
         run: |
           cd infra/tf
-          sed -i "s/TFSTATE_TABLE/$TFSTATE_TABLE_DEV/g"
-          sed -i "s/TFSTATE_BUCKET/$TFSTATE_BUCKET_DEV/g"
-          sed -i "s/TF_VAR_ENVIRONMENT_NAME/$TF_VAR_ENVINRONMENT_NAME/g"
+          sed -i "s/TFSTATE_TABLE/$TFSTATE_TABLE_DEV/g" provider.tpl
+          sed -i "s/TFSTATE_BUCKET/$TFSTATE_BUCKET_DEV/g" provider.tpl
+          sed -i "s/TF_VAR_ENVIRONMENT_NAME/$TF_VAR_ENVINRONMENT_NAME/g" provider.tpl
 
       - name: Validate terraform configuration
         id: terraform-validate
@@ -121,7 +121,6 @@ jobs:
         with:
           ref: ${{ github.event.client_payload.sha }}
 
-
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -146,42 +145,6 @@ jobs:
           cd /infra/ansible
           ansible-playbook -e commit=${{ github.sha }} -i 127.0.0.1 install.yaml
 
-  # trigger-frontend-deployment:
-  #   runs-on: self-hosted
-  #   if: ${{ github.ref == 'refs/heads/main' }}
-  #   needs:
-  #     - create-infrastructure-terraform
-  #     -
-  #   outputs:
-  #     issueID: ${{ steps.get-id.outputs.issueID }}
-  #     frontendBranchName: ${{ steps.get-id.outputs.frontendBranchName }}
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v2
-  #       with:
-  #         ref: ${{ github.event.client_payload.sha }}
-
-  #     - name: Get Issue ID
-  #       id: get-id
-  #       run: |
-  #         echo "::set-output issueID=$(jq '.issueID' | tr -d '"')"
-  #         echo "::set-output frontendBranchName=$(jq '.frontendBranchName' | tr -d '"')"
-
-  #     - name: Trigger frontend deployment job
-  #       id: trigger-frontend-job
-  #       if: ${{ github.ref != 'refs/heads/main' }}
-  #       uses: aurelien-baudet/workflow-dispatch@v2
-  #       with:
-  #         workflow:
-  #         repo: jxeldotdev/todo-backend
-  #         token: ${{ secrets.PERSONAL_TOKEN }}
-  #         display-worflow-run-url: true
-  #         wait-for-completion: true
-  #         wait-for-completion-timeout: 2m
-  #         wait-for-completion-interval: 30s
-  #         ref: "refs/heads/${{ steps.get-id.outputs.frontendBranchName }}"
-  #         inputs: '{ "bucket_name": "${{ needs.create-infrastructure-terraform.outputs.s3_bucket_name }} ", "cf_dist_id": "${{ needs.create-infrastructure-terraform.outputs.cf_dist_id }}" }'
-
   get-ci-config:
     runs-on: self-hosted
     if: ${{ always() }}
@@ -197,8 +160,8 @@ jobs:
       - name: Get Issue ID
         id: get-id
         run: |
-          echo "::set-output issueID=$(jq '.issueID' | tr -d '"')"
-          echo "::set-output frontendBranchName=$(jq '.frontendBranchName' | tr -d '"')"
+          echo "::set-output issueID=$(jq '.issueID' ciconfig.json | tr -d '"')"
+          echo "::set-output frontendBranchName=$(jq '.frontendBranchName' ciconfig.json | tr -d '"')"
 
   comment-on-issue:
     runs-on: self-hosted
