@@ -5,9 +5,9 @@ module "todo_app" {
   environment = var.environment_name
   branch_name = var.branch_name
   // branch.dev.tinakori.dev OR tinakori.dev
-  frontend_url     = var.frontend_url
-  db_subnet_group  = var.db_subnet_group
-  hosted_zone_id   = "Z0461719X1HVPOA235VQ"
+  frontend_url    = var.frontend_url
+  db_subnet_group = var.db_subnet_group
+  hosted_zone_id  = "Z0461719X1HVPOA235VQ"
 }
 
 locals {
