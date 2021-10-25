@@ -43,7 +43,7 @@ resource "aws_secretsmanager_secret" "db_credentials_secret" {
 }
 
 resource "aws_secretsmanager_secret_version" "db_credentials_secret" {
-  for_each  = {
+  for_each = {
     root-user = random_password.db_master_password.result,
     todo-user = random_password.db_credentials_secret.result
   }
@@ -113,9 +113,9 @@ module "db" {
   backup_window                   = "03:00-06:00"
   enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
 
-  backup_retention_period               = var.backup_retention_period
-  skip_final_snapshot                   = local.is_prod
-  deletion_protection                   = local.is_prod
+  backup_retention_period = var.backup_retention_period
+  skip_final_snapshot     = local.is_prod
+  deletion_protection     = local.is_prod
 
   // we will have a prometheus exporter for monitoring
 

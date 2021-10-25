@@ -3,7 +3,7 @@ module "todo_app" {
   source = "./todo-app"
 
   environment = var.environment_name
-  branch_name      = var.branch_name
+  branch_name = var.branch_name
   // branch.dev.tinakori.dev OR tinakori.dev
   frontend_url     = var.frontend_url
   docker_image_tag = var.docker_image_tag

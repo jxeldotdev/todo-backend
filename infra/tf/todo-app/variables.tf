@@ -2,7 +2,7 @@
 // ci-and-infrastructure.dev.tinakori.dev
 // tinakori.dev
 variable "frontend_url" {
-  type        = string
+  type = string
 }
 
 
@@ -31,8 +31,8 @@ variable "environment" {
 }
 
 variable "create_rds" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
 }
 
 /* Database Variables */
