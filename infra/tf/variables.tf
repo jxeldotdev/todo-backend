@@ -12,8 +12,3 @@ variable "frontend_url" {
   type        = string
   description = "Vue Frontend URL"
 }
-
-variable "docker_image_tag" {
-  type        = string
-  description = "Tag of Backend Docker Image"
-}

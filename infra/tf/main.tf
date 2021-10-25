@@ -6,7 +6,6 @@ module "todo_app" {
   branch_name = var.branch_name
   // branch.dev.tinakori.dev OR tinakori.dev
   frontend_url     = var.frontend_url
-  docker_image_tag = var.docker_image_tag
   db_subnet_group  = var.db_subnet_group
   hosted_zone_id   = "Z0461719X1HVPOA235VQ"
 }
