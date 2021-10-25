@@ -83,49 +83,50 @@ data "aws_security_groups" "database" {
 }
 
 # /* RDS Instance */
-# module "db" {
-#   source = "terraform-aws-modules/rds/aws"
+module "db" {
+  count  = var.create_rds
+  source = "terraform-aws-modules/rds/aws"
 
-#   identifier = "todo-${var.branch_name}-${var.environment}-db"
+  identifier = "todo-${var.branch_name}-${var.environment}-db"
 
-#   engine               = "postgres"
-#   engine_version       = "13.3"
-#   family               = "postgres13" # DB parameter group
-#   major_engine_version = "13"         # DB option group
-#   instance_class       = var.db_instance_class
+  engine               = "postgres"
+  engine_version       = "13.3"
+  family               = "postgres13" # DB parameter group
+  major_engine_version = "13"         # DB option group
+  instance_class       = var.db_instance_class
 
-#   allocated_storage     = 10
-#   max_allocated_storage = 50
-#   storage_encrypted     = true
+  allocated_storage     = 10
+  max_allocated_storage = 50
+  storage_encrypted     = true
 
-#   name     = var.db_name
-#   username = var.master_db_user
-#   password = data.aws_secretsmanager_secret_version.db_credentials_secret.secret_string
-#   port     = 5432
+  name     = var.db_name
+  username = var.master_db_user
+  password = data.aws_secretsmanager_secret_version.db_credentials_secret.secret_string
+  port     = 5432
 
-#   multi_az               = local.is_prod
-#   subnet_ids             = data.aws_subnet_ids.db.ids
-#   vpc_security_group_ids = data.aws_security_groups.database.ids
-#   db_subnet_group_name   = var.db_subnet_group
+  multi_az               = local.is_prod
+  subnet_ids             = data.aws_subnet_ids.db.ids
+  vpc_security_group_ids = data.aws_security_groups.database.ids
+  db_subnet_group_name   = var.db_subnet_group
 
-#   maintenance_window              = "Mon:00:00-Mon:03:00"
-#   backup_window                   = "03:00-06:00"
-#   enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
+  maintenance_window              = "Mon:00:00-Mon:03:00"
+  backup_window                   = "03:00-06:00"
+  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
 
-#   backup_retention_period               = var.backup_retention_period
-#   skip_final_snapshot                   = local.is_prod
-#   deletion_protection                   = local.is_prod
+  backup_retention_period               = var.backup_retention_period
+  skip_final_snapshot                   = local.is_prod
+  deletion_protection                   = local.is_prod
 
-#   // we will have a prometheus exporter for monitoring
+  // we will have a prometheus exporter for monitoring
 
-#   parameters = [
-#     {
-#       name  = "autovacuum"
-#       value = 1
-#     },
-#     {
-#       name  = "client_encoding"
-#       value = "utf8"
-#     }
-#   ]
-# }
+  parameters = [
+    {
+      name  = "autovacuum"
+      value = 1
+    },
+    {
+      name  = "client_encoding"
+      value = "utf8"
+    }
+  ]
+}

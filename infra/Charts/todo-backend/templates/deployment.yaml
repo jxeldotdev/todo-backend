@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "todo-backend.fullname" . }}
-  namespace: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "todo-backend.labels" . | nindent 4 }}
 spec:
@@ -75,7 +75,7 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 5
       - name: nginx
-        image: "{{ .Values.image.repository }}:{{ .Values.image.nginxTag }}"
+        image: "{{ .Values.image.nginxRepository }}:{{ .Values.image.nginxTag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: nginx-config
@@ -85,7 +85,8 @@ spec:
           - name: http
             containerPort: 80
             protocol: TCP
-        securityContext: {{- toYaml .Values.securityContext | nindent 12 }}
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
         livenessProbe:
           httpGet:
             path: /health

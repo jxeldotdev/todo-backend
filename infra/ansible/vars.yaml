@@ -1,0 +1,5 @@
+install_postgres_helm: true
+postgres_host: "todo-backend-postgresql-{{ branch_name }}.todo-preview-{{ branch_name }}.svc.cluster.local"
+branch_name: ""
+frontend_image_tag: ""
+backend_image_tag: ""

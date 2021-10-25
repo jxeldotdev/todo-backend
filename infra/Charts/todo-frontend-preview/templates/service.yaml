@@ -1,10 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "todo-backend.fullname" . }}
-  namespace: {{ .Release.Name }}
+  name: {{ include "todo-frontend-preview.fullname" . }}
   labels:
-    {{- include "todo-backend.labels" . | nindent 4 }}
+    {{- include "todo-frontend-preview.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -13,4 +12,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "todo-backend.selectorLabels" . | nindent 4 }}
+    {{- include "todo-frontend-preview.selectorLabels" . | nindent 4 }}

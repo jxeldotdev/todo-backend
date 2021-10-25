@@ -30,6 +30,11 @@ variable "environment" {
   }
 }
 
+variable "create_rds" {
+  type        = bool
+  default     = false
+}
+
 /* Database Variables */
 
 variable "db_name" {

@@ -2,16 +2,20 @@
 
 hosts: 127.0.0.1
 variables:
-  tls_secret_name: todo-backend-ingress
+  tls_secret_name: todo-preview-ingress
+  install_postgres_helm: true
+  postgres_host: "todo-backend-postgresql-{{ branch_name }}.todo-preview-{{ branch_name }}.svc.cluster.local"
 tasks:
   - name: Include variables
     ansible.builtin.include_vars: file=tf_ansible_vars.yaml
 
   - name: Install PostgreSQL Release
+    when: install_postgres_helm
     kubernetes.core.helm:
-      name: "postgresql-{{ branch_name }}"
+      name: "todo-backend-postgresql-{{ branch_name }}"
       chart_ref: "bitnami/postgresql"
-      release_namespace: "todo-backend-{{ branch_name }}"
+      release_namespace: "todo-preview-{{ branch_name }}"
+      create_namespace: true
       values:
         postgresqlPostgresPassword: {{ lookup('amazon.aws.aws_secret' item + '.password') }}
         primary:
@@ -27,7 +31,7 @@ tasks:
       name: "todo_app"
       template: template0
       state: present
-      login_host: "postgresql-{{ branch_name }}.todo-backend-{{ branch_name }}.svc.cluster.local"
+      login_host: {{ postgres_host }}
       login_user: postgres
       login_password: {{ lookup('amazon_aws_secret', item + '.password') }}
     loop: {{ secretsmanager_root_secret_name }}
@@ -37,7 +41,7 @@ tasks:
       name: todo
       state: present
       password: {{ lookup('amazon.aws.aws_secret' item.value + '.password') }}
-      login_host: "postgresql-{{ branch_name }}.todo-backend-{{ branch_name }}.svc.cluster.local"
+      login_host: "todo-backend-postgresql-{{ branch_name }}.todo-preview-{{ branch_name }}.svc.cluster.local"
       login_user: {{ lookup('amazon_aws_secret', item.key + '.username') }}
       login_password: {{ lookup('amazon_aws_secret', item.key + '.password') }}
     loop_dict:
@@ -56,22 +60,22 @@ tasks:
     loop_dict:
       - { {{ secretsmanager_root_secret_name }}: {{ secretsmanager_secret_name }} }
 
-  - name: Install Helm Release
+  - name: Install Backend API
     kubernetes.core.helm:
       name: "todo-backend-{{ branch_name }}"
-      chart_ref: "../todo-backend/"
-      release_namespace: "todo-backend-{{ branch_name }}"
+      chart_ref: "../Charts/todo-backend/"
+      release_namespace: "todo-preview-{{ branch_name }}"
       values:
         commit: {{ commit_id }}
         branch: {{ branch_name }}
         image:
-          tag: {{ image_tag_name }}
+          tag: {{ backend_image_tag }}
         db:
           user: {{ lookup('amazon.aws.aws_secret' item + '.username') }}
           password: {{ lookup('amazon.aws.aws_secret' item + '.password') }}
         config:
           postgresDB: todo_app
-          postgresHost: "postgresql-{{ branch_name }}.todo-backend-{{ branch_name }}.svc.cluster.local"
+          postgresHost: "todo-backend-postgresql-{{ branch_name }}.todo-preview-{{ branch_name }}.svc.cluster.local"
           corsAllowedOrigins: [ {{ frontend_url }}, "www.{{ frontend_url }}" ]
         ingress:
           enabled: true
@@ -81,7 +85,7 @@ tasks:
           tls:
           - hosts:
             - {{ backend_api_url }}
-            secretName: {{ tls_secret_name }}
+            secretName: {{ shared_tls_secret_name }}
           hosts:
             - host: {{ backend_api_url }}
               paths:
@@ -92,3 +96,43 @@ tasks:
                     port:
                       number: 80
     loop: {{ secretsmanager_aws_secret }}
+
+  - name: Install Frontend (Preview)
+    kubernetes.core.helm:
+      name: "todo-frontend-{{ branch_name }}"
+      chart_ref: "../Charts/todo-frontend-preview/"
+      release_namespace: "todo-preview-{{ branch_name }}"
+      values:
+        image:
+          tag: {{ frontend_image_tag }}
+        backendConfig:
+          proto: "https"
+          port: 443
+          host: "{{ backend_url }}"
+        ingress:
+          enabled: true
+          annotations:
+            className: kubernetes.io/ingress.class: nginx
+            cert-manager.io/cluster-issuer: letsencrypt-prod
+          tls:
+          - hosts:
+            - {{ frontend_url }}
+            - "www.{{ frontend_url }}"
+            secretName: {{ shared_tls_secret_name }}
+          hosts:
+            - host: {{ frontend_url }}
+              paths:
+                - path: /
+                  pathType: prefix
+                  service:
+                    name: "todo-frontend-{{ branch_name }}"
+                    port:
+                      number: 80
+            - host: "www.{{ frontend_url }}"
+              paths:
+                - path: /
+                  pathType: prefix
+                  service:
+                    name: "todo-frontend-{{ branch_name }}"
+                    port:
+                      number: 80
