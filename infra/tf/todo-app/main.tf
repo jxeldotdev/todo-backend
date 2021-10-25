@@ -38,7 +38,7 @@ resource "random_password" "db_todo_password" {
 
 
 resource "aws_secretsmanager_secret" "db_credentials_secret" {
-  for_each = ["root-user", "todo-user"]
+  for_each = toset(["root-user", "todo-user"])
   name     = "todo-backend-${each.key}-db-credentials-${var.branch_name}"
 }
 

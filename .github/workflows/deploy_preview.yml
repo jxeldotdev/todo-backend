@@ -91,6 +91,7 @@ jobs:
       - name: Terraform plan
         run: |
           cd infra/tf
+          TF_VAR_vpc_id=$(aws ec2 describe-vpcs | jq '.Vpcs[].VpcId' | tr -d '"')
           terraform init
           terraform plan -no-color
 

@@ -8,6 +8,7 @@ module "todo_app" {
   frontend_url    = var.frontend_url
   db_subnet_group = var.db_subnet_group
   hosted_zone_id  = "Z0461719X1HVPOA235VQ"
+  vpc_id          = var.vpc_id
 }
 
 locals {
@@ -28,4 +29,6 @@ resource "local_file" "tf_ansible_vars_file_new" {
     cloudfront_dist_id: ${module.todo_app.cloudfront_dist_id}
     DOC
   filename = "./tf_ansible_vars.yaml"
+
+  depends_on = [module.todo_app]
 }
