@@ -1,9 +1,11 @@
-
 # todo-backend
+
+"Lets see if this will make the cache shorter?"
 
 "Todo list" Rest API written in python with user login support. See https://github.com/jxeldotdev/todo-frontend
 
 ## Infrastructure overview
+
 ![Infrastructure Diagram](infra/diagram.png)
 
 ## Usage
@@ -16,12 +18,15 @@ docker-compose up -d app
 ```
 
 ## Updating migrations
+
 ```shell
 docker-compose run --rm --entrypoint sh app alembic revision --autogenerate -m "migration-name-here :)"
 ```
 
 ## Updating dependencies
+
 Update requirements.txt to match pipenv by running the following:
+
 ```shell
 pipenv run pip freeze > requirements.txt
 ```
@@ -30,12 +35,11 @@ pipenv run pip freeze > requirements.txt
 
 Unfortunately for this repository pull requests will not be merged into this project as it is a personal showcase.
 
-
 ## Functionality / project checklist
 
-- [X] Create a Helm chart for the application
+- [x] Create a Helm chart for the application
 
-- [X] Create a seperate repo with Terraform configuration for EKS infrastructure
+- [x] Create a seperate repo with Terraform configuration for EKS infrastructure
 
 - [ ] Automate deployment of application
 
