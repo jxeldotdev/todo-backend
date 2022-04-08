@@ -147,38 +147,38 @@ jobs:
       - name: Run unit tests
         run: docker-compose run --rm app test
 
-  trigger-deployment:
-    runs-on: ubuntu-latest
-    if: ${{ always() }}
-    needs:
-      - test
-      - scan-code-semgrep
-      - lint
-      - scan-dependencies-safety
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.client_payload.sha }}
+  # trigger-deployment:
+  #   runs-on: ubuntu-latest
+  #   if: ${{ always() }}
+  #   needs:
+  #     - test
+  #     - scan-code-semgrep
+  #     - lint
+  #     - scan-dependencies-safety
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
+  #       with:
+  #         ref: ${{ github.event.client_payload.sha }}
 
-      - name: Calculate environment and image tag
-        id: calculate-values
-        run: |
-          echo "::set-output name=branch_name::$(git branch --no-color --show-current)-$(git rev-parse --short HEAD)"
-          if [ $(git branch) -ne "master" ]; then ENVIRONMENT_NAME="dev"; else ENVIRONMENT_NAME="prod"; fi
+  #     - name: Calculate environment and image tag
+  #       id: calculate-values
+  #       run: |
+  #         echo "::set-output name=branch_name::$(git branch --no-color --show-current)-$(git rev-parse --short HEAD)"
+  #         if [ $(git branch) -ne "master" ]; then ENVIRONMENT_NAME="dev"; else ENVIRONMENT_NAME="prod"; fi
 
-          echo "::set-output name=environment::echo $ENVIRONMENT_NAME"
-      - name: Deploy to Preview Environment
-        if: ${{ github.ref != 'refs/heads/main' }}
-        uses: aurelien-baudet/workflow-dispatch@v2
-        with:
-          workflow: 14499421
-          repo: jxeldotdev/todo-backend
-          token: ${{ secrets.PERSONAL_TOKEN }}
+  #         echo "::set-output name=environment::echo $ENVIRONMENT_NAME"
+  #     - name: Deploy to Preview Environment
+  #       if: ${{ github.ref != 'refs/heads/main' }}
+  #       uses: aurelien-baudet/workflow-dispatch@v2
+  #       with:
+  #         workflow: 14499421
+  #         repo: jxeldotdev/todo-backend
+  #         token: ${{ secrets.PERSONAL_TOKEN }}
 
-      - name: Deploy to Production Environment
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: aurelien-baudet/workflow-dispatch@v2
-        with:
-          workflow: Deploy to Production Environment
-          token: ${{ secrets.PERSONAL_TOKEN }}
+  #     - name: Deploy to Production Environment
+  #       if: ${{ github.ref == 'refs/heads/main' }}
+  #       uses: aurelien-baudet/workflow-dispatch@v2
+  #       with:
+  #         workflow: Deploy to Production Environment
+  #         token: ${{ secrets.PERSONAL_TOKEN }}

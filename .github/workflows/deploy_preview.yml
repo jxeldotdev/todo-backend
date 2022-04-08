@@ -1,196 +1,196 @@
-name: Deploy Preview Application on AWS
-on:
-  workflow_dispatch:
+# name: Deploy Preview Application on AWS
+# on:
+#   workflow_dispatch:
 
-jobs:
-  create-infrastructure-terraform:
-    runs-on: dev-runners
-    outputs:
-      cf_dist_id: ${{ steps.get_ids.outputs.cf_dist_id }}
-      s3_bucket_name: ${{ steps.get_ids.outputs.s3_bucket_name }}
-      var_file_url: ${{ steps.get_ids.var_file_arn }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.client_payload.sha }}
+# jobs:
+#   create-infrastructure-terraform:
+#     runs-on: dev-runners
+#     outputs:
+#       cf_dist_id: ${{ steps.get_ids.outputs.cf_dist_id }}
+#       s3_bucket_name: ${{ steps.get_ids.outputs.s3_bucket_name }}
+#       var_file_url: ${{ steps.get_ids.var_file_arn }}
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
+#         with:
+#           ref: ${{ github.event.client_payload.sha }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v1
 
-      - name: Install Helm
-        uses: azure/setup-helm@v1
-      # required?
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-      - name: Assume AWS Role
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: ${{ secrets.AWS_REGION }}
-          role-to-assume: GithubActionsTerraform
-          web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
-          role-duration-seconds: 900
-
-
-      - name: Set environment variables
-        id: get_env
-        run: |
-          export BRANCH=$(git branch --no-color --show-current)
-
-          if [ $BRANCH != "main" ]; then
-            ENVIRONMMENT="dev"
-            FRONTEND_URL="${BRANCH}.${ENVIRONMENT}.tinakori.dev"
-          else
-            ENVIRONMENT="prod"
-            FRONTEND_URL="tinakori.dev"
-          fi
-
-          echo "::set-output name=branch::$(git branch --no-color --show-current)"
-          echo "::set-output name=image_tag::$(git branch --no-color --show-current)-$(git rev-parse --short HEAD)"
-          echo "::set-output name=git_ref_short::$(git rev-parse --short HEAD)"
-          echo "::set-output name=backend_url::api.${FRONTEND_URL}"
-          echo "::set-output name=frontend_url::$FRONTEND_URL"
-
-          export TF_VAR_FRONTEND_URL=$FRONTEND_URL
-          export TF_VAR_ENVIRONMENT_NAME=$BRANCH
-          export TF_VAR_DOCKER_IMAGE_TAG=$(git branch --no-color --show-current)-$(git rev-parse --short HEAD)
-          export TF_VAR_BRANCH_NAME=$BRANCH
+#       - name: Install Helm
+#         uses: azure/setup-helm@v1
+#       # required?
+#       - uses: actions/setup-node@v2
+#         with:
+#           node-version: '14'
+#       - name: Assume AWS Role
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-region: ${{ secrets.AWS_REGION }}
+#           role-to-assume: GithubActionsTerraform
+#           web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+#           role-duration-seconds: 900
 
 
-      - name: Setup Terraform workspace
-        id: terraform-setup
-        run: |
-          cd infra/tf
-          terraform init
+#       - name: Set environment variables
+#         id: get_env
+#         run: |
+#           export BRANCH=$(git branch --no-color --show-current)
 
-          WORKSPACE_EXISTS=false
+#           if [ $BRANCH != "main" ]; then
+#             ENVIRONMMENT="dev"
+#             FRONTEND_URL="${BRANCH}.${ENVIRONMENT}.tinakori.dev"
+#           else
+#             ENVIRONMENT="prod"
+#             FRONTEND_URL="tinakori.dev"
+#           fi
 
-          if terraform workspace list | grep $(git branch --no-color --show-current); then
-            terraform workspace select $(git branch --no-color --show-current)
-          else
-            terraform workspace new $(git branch --no-color --show-current)
-          fi
-      - name: Template tfstate
-        env:
-          TFSTATE_BUCKET: ${{ secrets.TFSTATE_BUCKET_DEV }}
-          TFSTATE_TABLE: ${{ secrets.TFSTATE_TABLE_DEV }}
-        run: |
-          cd infra/tf
-          sed -i "s/TFSTATE_TABLE/$TFSTATE_TABLE_DEV/g" provider.tpl
-          sed -i "s/TFSTATE_BUCKET/$TFSTATE_BUCKET_DEV/g" provider.tpl
-          sed -i "s/TF_VAR_ENVIRONMENT_NAME/$TF_VAR_ENVINRONMENT_NAME/g" provider.tpl
+#           echo "::set-output name=branch::$(git branch --no-color --show-current)"
+#           echo "::set-output name=image_tag::$(git branch --no-color --show-current)-$(git rev-parse --short HEAD)"
+#           echo "::set-output name=git_ref_short::$(git rev-parse --short HEAD)"
+#           echo "::set-output name=backend_url::api.${FRONTEND_URL}"
+#           echo "::set-output name=frontend_url::$FRONTEND_URL"
 
-      - name: Validate terraform configuration
-        id: terraform-validate
-        run: |
-          cd infra/tf
-          terraform fmt -check
-          terraform validate -no-color
-
-      - name: Terraform plan
-        run: |
-          cd infra/tf
-          TF_VAR_vpc_id=$(aws ec2 describe-vpcs | jq '.Vpcs[].VpcId' | tr -d '"')
-          terraform init
-          terraform plan -no-color
-
-      - name: Terraform apply
-        id: tf-apply
-        run: |
-          cd infra/tf
-          terraform apply -auto-approve
-
-      - name: Get Terraform Outputs
-        id: get_ids
-        run: |
-          echo "::set-output name=cf_dist_id::$(terraform output cf_dist_id | tr -d '"')"
-          echo "::set-output name=s3_bucket_name::$(terraform output s3_bucket_name | tr -d '"')"
-          echo "::set-output name=var_file_arn::s3://${{ secrets.S3_VAR_BUCKET_NAME_DEV }}/tf_ansible_vars_${{ steps.get_env.outputs.branch }}_${{ steps.get_env.outputs.git_ref_short }}.yaml"
-
-      - name: Copy variables file to S3 Bucket
-        run: |
-          aws s3 cp infra/tf/tf_ansible_vars.yaml ${{ steps.get_ids.outputs.var_file_arn }}
-
-  run-ansible-playbook-dev:
-    runs-on: dev-runners
-    needs:
-      - create-infrastructure-terraform
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.client_payload.sha }}
-
-      - name: Assume AWS Role
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: ${{ secrets.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
-          web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
-          role-skip-session-tagging: true
-
-      - name: Download Artifact
-        run: |
-          aws s3 cp ${{ needs.jobs.create-infrastructure-terraform.outputs.var_file_arn }} infra/tf/tf_ansible_vars.yaml
-
-      - name: Install Helm Release and Configure RDS Instance
-        id: ansible
-        run: |
-          if [ -e infra/tf/tf_ansible_vars.yaml ]; then
-            mv infra/tf/tf_ansible_vars.yaml infra/ansible/tf_ansible_vars.yaml
-          else
-            echo "Unable to find exported terraform outputs file at /infra/tf/tf_ansible_vars.yaml" 1>&2
-            exit 1
-          fi
-          cd /infra/ansible
-          ansible-playbook -e commit=${{ github.sha }} -i 127.0.0.1 install.yaml
-
-  get-ci-config:
-    runs-on: self-hosted
-    if: ${{ always() }}
-    outputs:
-      issueID: ${{ steps.get-id.outputs.issueID }}
-      frontendBranchName: ${{ steps.get-id.outputs.frontendBranchName }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.client_payload.sha }}
-
-      - name: Get Issue ID
-        id: get-id
-        run: |
-          echo "::set-output name=issueID::$(jq '.issueID' ciconfig.json | tr -d '"')"
-          echo "::set-output name=frontendBranchName::$(jq '.frontendBranchName' ciconfig.json | tr -d '"')"
-
-  comment-on-issue:
-    runs-on: self-hosted
-    if: ${{ always() }}
-    needs:
-      - create-infrastructure-terraform
-      - run-ansible-playbook-dev
-      - get-ci-config
-    steps:
-      - name: Comment on PR
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const output = `
-            ## Job Statuses
-            Terraform Deployment: ${{ needs.create-infrastructure-terraform.result }}
-            Helm Installation: ${{ needs.run-ansible-playbook-dev.result }}
-
-            Application has been deployed successfully. See the following URLs:
-
-            ## Application URLs:
-            Backend API URL: ${{ needs.create-infrastructure-terraform.outputs.backend_url }}
-            Frontend URL: ${{ needs.create-infrastructure-terraform.outputs.frontend_url }}`;
+#           export TF_VAR_FRONTEND_URL=$FRONTEND_URL
+#           export TF_VAR_ENVIRONMENT_NAME=$BRANCH
+#           export TF_VAR_DOCKER_IMAGE_TAG=$(git branch --no-color --show-current)-$(git rev-parse --short HEAD)
+#           export TF_VAR_BRANCH_NAME=$BRANCH
 
 
-            github.rest.issues.createComment({
-              issue_number: ${{ needs.get-ci-config.outputs.issueID }},
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
+#       - name: Setup Terraform workspace
+#         id: terraform-setup
+#         run: |
+#           cd infra/tf
+#           terraform init
+
+#           WORKSPACE_EXISTS=false
+
+#           if terraform workspace list | grep $(git branch --no-color --show-current); then
+#             terraform workspace select $(git branch --no-color --show-current)
+#           else
+#             terraform workspace new $(git branch --no-color --show-current)
+#           fi
+#       - name: Template tfstate
+#         env:
+#           TFSTATE_BUCKET: ${{ secrets.TFSTATE_BUCKET_DEV }}
+#           TFSTATE_TABLE: ${{ secrets.TFSTATE_TABLE_DEV }}
+#         run: |
+#           cd infra/tf
+#           sed -i "s/TFSTATE_TABLE/$TFSTATE_TABLE_DEV/g" provider.tpl
+#           sed -i "s/TFSTATE_BUCKET/$TFSTATE_BUCKET_DEV/g" provider.tpl
+#           sed -i "s/TF_VAR_ENVIRONMENT_NAME/$TF_VAR_ENVINRONMENT_NAME/g" provider.tpl
+
+#       - name: Validate terraform configuration
+#         id: terraform-validate
+#         run: |
+#           cd infra/tf
+#           terraform fmt -check
+#           terraform validate -no-color
+
+#       - name: Terraform plan
+#         run: |
+#           cd infra/tf
+#           TF_VAR_vpc_id=$(aws ec2 describe-vpcs | jq '.Vpcs[].VpcId' | tr -d '"')
+#           terraform init
+#           terraform plan -no-color
+
+#       - name: Terraform apply
+#         id: tf-apply
+#         run: |
+#           cd infra/tf
+#           terraform apply -auto-approve
+
+#       - name: Get Terraform Outputs
+#         id: get_ids
+#         run: |
+#           echo "::set-output name=cf_dist_id::$(terraform output cf_dist_id | tr -d '"')"
+#           echo "::set-output name=s3_bucket_name::$(terraform output s3_bucket_name | tr -d '"')"
+#           echo "::set-output name=var_file_arn::s3://${{ secrets.S3_VAR_BUCKET_NAME_DEV }}/tf_ansible_vars_${{ steps.get_env.outputs.branch }}_${{ steps.get_env.outputs.git_ref_short }}.yaml"
+
+#       - name: Copy variables file to S3 Bucket
+#         run: |
+#           aws s3 cp infra/tf/tf_ansible_vars.yaml ${{ steps.get_ids.outputs.var_file_arn }}
+
+#   run-ansible-playbook-dev:
+#     runs-on: dev-runners
+#     needs:
+#       - create-infrastructure-terraform
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
+#         with:
+#           ref: ${{ github.event.client_payload.sha }}
+
+#       - name: Assume AWS Role
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-region: ${{ secrets.AWS_REGION }}
+#           role-to-assume: ${{ secrets.AWS_ROLE_NAME }}
+#           web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+#           role-skip-session-tagging: true
+
+#       - name: Download Artifact
+#         run: |
+#           aws s3 cp ${{ needs.jobs.create-infrastructure-terraform.outputs.var_file_arn }} infra/tf/tf_ansible_vars.yaml
+
+#       - name: Install Helm Release and Configure RDS Instance
+#         id: ansible
+#         run: |
+#           if [ -e infra/tf/tf_ansible_vars.yaml ]; then
+#             mv infra/tf/tf_ansible_vars.yaml infra/ansible/tf_ansible_vars.yaml
+#           else
+#             echo "Unable to find exported terraform outputs file at /infra/tf/tf_ansible_vars.yaml" 1>&2
+#             exit 1
+#           fi
+#           cd /infra/ansible
+#           ansible-playbook -e commit=${{ github.sha }} -i 127.0.0.1 install.yaml
+
+#   get-ci-config:
+#     runs-on: self-hosted
+#     if: ${{ always() }}
+#     outputs:
+#       issueID: ${{ steps.get-id.outputs.issueID }}
+#       frontendBranchName: ${{ steps.get-id.outputs.frontendBranchName }}
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
+#         with:
+#           ref: ${{ github.event.client_payload.sha }}
+
+#       - name: Get Issue ID
+#         id: get-id
+#         run: |
+#           echo "::set-output name=issueID::$(jq '.issueID' ciconfig.json | tr -d '"')"
+#           echo "::set-output name=frontendBranchName::$(jq '.frontendBranchName' ciconfig.json | tr -d '"')"
+
+#   comment-on-issue:
+#     runs-on: self-hosted
+#     if: ${{ always() }}
+#     needs:
+#       - create-infrastructure-terraform
+#       - run-ansible-playbook-dev
+#       - get-ci-config
+#     steps:
+#       - name: Comment on PR
+#         uses: actions/github-script@v5
+#         with:
+#           script: |
+#             const output = `
+#             ## Job Statuses
+#             Terraform Deployment: ${{ needs.create-infrastructure-terraform.result }}
+#             Helm Installation: ${{ needs.run-ansible-playbook-dev.result }}
+
+#             Application has been deployed successfully. See the following URLs:
+
+#             ## Application URLs:
+#             Backend API URL: ${{ needs.create-infrastructure-terraform.outputs.backend_url }}
+#             Frontend URL: ${{ needs.create-infrastructure-terraform.outputs.frontend_url }}`;
+
+
+#             github.rest.issues.createComment({
+#               issue_number: ${{ needs.get-ci-config.outputs.issueID }},
+#               owner: context.repo.owner,
+#               repo: context.repo.repo,
+#               body: output
+#             })
