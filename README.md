@@ -1,7 +1,5 @@
 # todo-backend
 
-"Lets see if this will make the cache shorter?"
-
 "Todo list" Rest API written in python with user login support. See https://github.com/jxeldotdev/todo-frontend
 
 ## Infrastructure overview
