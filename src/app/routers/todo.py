@@ -2,9 +2,10 @@ from typing import Any, Optional
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
+from datetime import datetime
 import logging
 
-from app.schemas import Todo, TodoCreate
+from app.schemas import Todo, TodoCreate, TodoPut
 from app.database import get_db
 from app import crud
 
@@ -70,14 +71,15 @@ def create_todo(
 
 
 @router.put("/{todo_id}", status_code=200, tags=["Todos"])
-def update_todo(todo_id, todo_in: Todo, db: Session = Depends(
+def update_todo(todo_id, todo_in: TodoPut, db: Session = Depends(
         get_db)) -> Any:
+    todo_in_with_date = Todo(id=todo_in.id, title=todo_in.title, created_at=datetime.now(), notes=todo_in.notes, completed=todo_in.completed)
     todo = crud.Todo.get_single(db, todo_id)
     if not todo:
         logger.info(f"Todo item {todo_id} not found")
         raise HTTPException(status_code=404, detail="Item not found")
 
-    todo = crud.Todo.update_todo(db, todo_in, todo_id)
+    todo = crud.Todo.update_todo(db, todo_in_with_date, todo_id)
     logger.debug(f"Updated todo item {todo_id}")
     return todo
 

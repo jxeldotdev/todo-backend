@@ -12,6 +12,12 @@ class TodoDelete(BaseModel):
 
 
 class TodoCreate(BaseModel):
+    """
+    Title: String
+    Notes: (Optional): String
+    Completed: Boolean
+
+    """
     title: str
     notes: Optional[str] = None
     completed: bool = False
@@ -21,6 +27,14 @@ class TodoCreate(BaseModel):
 
 
 class Todo(BaseModel):
+    """
+    id: integer
+    Title: String
+    Notes: (Optional): String
+    Completed: Boolean
+    created_at: datetime
+    """
+    
     id: int
     title: str
     notes: Optional[str] = None
@@ -29,3 +43,6 @@ class Todo(BaseModel):
 
     class Config:
         orm_mode: True
+
+class TodoPut(TodoCreate):
+    id: int
