@@ -19,6 +19,14 @@ class TodoCreate(BaseModel):
     class Config:
         orm_mode: True
 
+class TodoUpdate(BaseModel):
+    id: int
+    title: str
+    notes: Optional[str] = None
+    completed: bool = False
+
+    class Config:
+        orm_mode: True
 
 class Todo(BaseModel):
     id: int

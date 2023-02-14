@@ -1,5 +1,7 @@
 FROM python:3.9-alpine as deps
 
+RUN apk add --update --no-cache
+
 RUN pip install --upgrade pip && \
     apk add --update --no-cache \
     build-base \

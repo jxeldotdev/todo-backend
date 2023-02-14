@@ -65,7 +65,13 @@ class Todo:
             db_todo.title = todo.title
             db_todo.notes = todo.notes
             db_todo.completed = todo.completed
-            db_todo.created_at = todo.created_at
+            try:
+                if todo.created_at:
+                    db_todo.created_at = todo.created_at    
+            except AttributeError:
+                # Only will happen when updating a todo item since we don't need to update created_at..
+                pass
+            db_todo
             db.commit()
 
         return db_todo

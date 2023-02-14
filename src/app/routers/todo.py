@@ -4,7 +4,7 @@ from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
 import logging
 
-from app.schemas import Todo, TodoCreate
+from app.schemas import Todo, TodoCreate, TodoUpdate
 from app.database import get_db
 from app import crud
 
@@ -70,7 +70,7 @@ def create_todo(
 
 
 @router.put("/{todo_id}", status_code=200, tags=["Todos"])
-def update_todo(todo_id, todo_in: Todo, db: Session = Depends(
+def update_todo(todo_id, todo_in: TodoUpdate, db: Session = Depends(
         get_db)) -> Any:
     todo = crud.Todo.get_single(db, todo_id)
     if not todo:
