@@ -33,24 +33,37 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ['/usr/local/bin/docker-entrypoint.sh']
+          args: ['web']
           envFrom:
             - secretRef:
                 name: {{ include "todo-backend.fullname" . }}
-                key: 
+            - configMapRef:
+                name: {{ include "todo-backend.fullname" . }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
+              path: /health
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /health
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      initContainers:
+        - name: run-migrations
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ['/usr/local/bin/docker-entrypoint.sh']
+          args: ['migrate']
+          envFrom:
+            - secretRef:
+                name: {{ include "todo-backend.fullname" . }}
+            - configMapRef:
+                name: {{ include "todo-backend.fullname" . }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

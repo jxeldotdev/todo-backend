@@ -8,7 +8,7 @@ image:
   repository: joelfreeman/todo-backend
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -81,8 +81,9 @@ tolerations: []
 
 affinity: {}
 
-postgres_pass: ""
-postgres_user: ""
-postgres_host: ""
-env: ""
+postgres_pass: "local_password"
+postgres_user: "postgres"
+postgres_host: "pg-minikube-postgresql.pg.svc.cluster.local"
+postgres_db: "todo"
+env: "local"
 cors_allowed_origins: "*"
